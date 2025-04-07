@@ -1,5 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import HomeView from '../views/HomeView.vue'
+import Minesweeper from '@/components/minesweeper.vue'
 
 
 const router = createRouter({
@@ -18,9 +19,11 @@ const router = createRouter({
       // which is lazy-loaded when the route is visited.
       component: () => import('../views/AboutView.vue'),
     },
-    { path: '/minesweeper',
-      name: 'Minesweeper', 
-      component: Minesweeper }
+    { 
+      path: '/minesweeper',
+      name: 'minesweeper',
+      component: Minesweeper,
+    }
   ],
 })
 

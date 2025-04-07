@@ -1,9 +1,9 @@
 <template>
     <div >
-        <Minesweeper />
+        <minesweeper />
     </div>
   </template>
   
   <script setup>
-  import Minesweeper from '@/components/minesweeper.vue'
+  import minesweeper from '@/components/minesweeper.vue'
   </script>
