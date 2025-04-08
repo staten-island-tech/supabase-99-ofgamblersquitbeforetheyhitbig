@@ -1,6 +1,10 @@
+<script setup lang="ts">
+import Profile from '@/components/Profile.vue'
+</script>
+
 <template>
   <div class="about">
-    <h1>This is an about page</h1>
+    <Profile />
   </div>
 </template>
 

@@ -9,10 +9,7 @@
       </select>
     </div>
 
-    <div
-      class="grid"
-      :style="`grid-template-columns: repeat(${cols}, 30px);`"
-    >
+    <div class="grid" :style="`grid-template-columns: repeat(${cols}, 30px);`">
       <div
         v-for="(cell, index) in grid"
         :key="index"
@@ -27,12 +24,12 @@
             'text-blue-700': cell.revealed && cell.adjacentMines === 1,
             'text-green-700': cell.revealed && cell.adjacentMines === 2,
             'text-red-700': cell.revealed && cell.adjacentMines >= 3,
-          }
+          },
         ]"
       >
         <span v-if="cell.flagged && !cell.revealed">🚩</span>
         <span v-else-if="cell.revealed">
-          {{ cell.mine ? "💣" : cell.adjacentMines || '' }}
+          {{ cell.mine ? '💣' : cell.adjacentMines || '' }}
         </span>
       </div>
     </div>
@@ -98,7 +95,7 @@ function generateMines(safeCell) {
   const safeZone = new Set(
     getNeighbors(safeCell)
       .concat(safeCell)
-      .map(c => c.y * cols.value + c.x)
+      .map((c) => c.y * cols.value + c.x),
   )
 
   while (minesPlaced < mineCount.value) {
@@ -114,7 +111,7 @@ function calculateAdjacentMines() {
   for (const cell of grid) {
     if (cell.mine) continue
     const neighbors = getNeighbors(cell)
-    cell.adjacentMines = neighbors.filter(n => n.mine).length
+    cell.adjacentMines = neighbors.filter((n) => n.mine).length
   }
 }
 
@@ -150,7 +147,7 @@ function revealCell(cell) {
 }
 
 function revealAll() {
-  grid.forEach(cell => (cell.revealed = true))
+  grid.forEach((cell) => (cell.revealed = true))
 }
 
 function toggleFlag(cell) {
