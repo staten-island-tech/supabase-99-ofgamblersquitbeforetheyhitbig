@@ -34,7 +34,7 @@ const getProfile = async () => {
   }
 
   const { data, error } = await supabase
-    .from('YourUserTableName') // put your table name here
+    .from('User Login') // put your table name here
     .select('*')
     .eq('id', user.id)
     .single()
