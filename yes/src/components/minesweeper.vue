@@ -2,7 +2,7 @@
   <div class="minesweeper p-4 space-y-4">
     <div class="flex items-center justify-between">
       <h2 class="text-xl font-semibold">Minesweeper</h2>
-      <select v-model="selectedDifficulty" @change="initGrid" class="border px-2 py-1 rounded">
+      <select v-model="selectedDifficulty" @change="resetGame" class="border px-2 py-1 rounded">
         <option value="easy">Easy (8x8, 10 mines)</option>
         <option value="medium">Medium (10x10, 15 mines)</option>
         <option value="hard">Hard (14x14, 25 mines)</option>
@@ -16,7 +16,7 @@
       <div
         v-for="(cell, index) in grid"
         :key="index"
-        @click="revealCell(cell)"
+        @click="handleFirstClick(cell)"
         @contextmenu.prevent="toggleFlag(cell)"
         :class="[
           'cell',
@@ -39,7 +39,7 @@
 
     <div v-if="gameOver" class="mt-4 text-center">
       <p class="text-lg font-semibold text-red-600 mb-2">💥 Game Over!</p>
-      <button @click="initGrid" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
+      <button @click="resetGame" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
         Restart Game
       </button>
     </div>
@@ -47,7 +47,7 @@
 </template>
 
 <script setup>
-import { reactive, ref, computed, watch, onMounted } from 'vue'
+import { reactive, ref, computed, onMounted } from 'vue'
 
 const difficulties = {
   easy: { rows: 8, cols: 8, mines: 10 },
@@ -58,14 +58,16 @@ const difficulties = {
 const selectedDifficulty = ref('medium')
 const grid = reactive([])
 const gameOver = ref(false)
+const firstClickMade = ref(false)
 
 const rows = computed(() => difficulties[selectedDifficulty.value].rows)
 const cols = computed(() => difficulties[selectedDifficulty.value].cols)
 const mineCount = computed(() => difficulties[selectedDifficulty.value].mines)
 
-function initGrid() {
+function resetGame() {
   grid.length = 0
   gameOver.value = false
+  firstClickMade.value = false
 
   for (let i = 0; i < rows.value * cols.value; i++) {
     grid.push({
@@ -77,16 +79,38 @@ function initGrid() {
       y: Math.floor(i / cols.value),
     })
   }
+}
 
+function handleFirstClick(cell) {
+  if (gameOver.value || cell.revealed || cell.flagged) return
+
+  if (!firstClickMade.value) {
+    generateMines(cell)
+    calculateAdjacentMines()
+    firstClickMade.value = true
+  }
+
+  revealCell(cell)
+}
+
+function generateMines(safeCell) {
   let minesPlaced = 0
+  const safeZone = new Set(
+    getNeighbors(safeCell)
+      .concat(safeCell)
+      .map(c => c.y * cols.value + c.x)
+  )
+
   while (minesPlaced < mineCount.value) {
     const index = Math.floor(Math.random() * grid.length)
-    if (!grid[index].mine) {
+    if (!grid[index].mine && !safeZone.has(index)) {
       grid[index].mine = true
       minesPlaced++
     }
   }
+}
 
+function calculateAdjacentMines() {
   for (const cell of grid) {
     if (cell.mine) continue
     const neighbors = getNeighbors(cell)
@@ -111,6 +135,7 @@ function getNeighbors(cell) {
 
 function revealCell(cell) {
   if (cell.revealed || cell.flagged || gameOver.value) return
+
   cell.revealed = true
 
   if (cell.mine) {
@@ -134,7 +159,7 @@ function toggleFlag(cell) {
 }
 
 onMounted(() => {
-  initGrid()
+  resetGame()
 })
 </script>
 
