@@ -8,7 +8,7 @@
         <option value="hard">Hard (14x14, 25 mines)</option>
       </select>
     </div>
-
+    <p class="text-sm text-gray-600">Total Coins: {{ coinStore.coins }}</p>
     <div
       class="grid"
       :style="`grid-template-columns: repeat(${cols}, 30px);`"
@@ -43,11 +43,35 @@
         Restart Game
       </button>
     </div>
+    <div v-else-if="gameWon" class="mt-4 text-center">
+  <p class="text-lg font-semibold text-green-600 mb-2">🎉 You Win!</p>
+  <p class="text-md mb-2">+{{ rewardCoins }} coins earned!</p>
+  <p class="text-sm text-gray-600">Total Coins: {{ coins }}</p>
+  <button
+    @click="resetGame"
+    class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600"
+  >
+    Play Again
+  </button>
+</div>
+    
   </div>
 </template>
 
 <script setup>
 import { reactive, ref, computed, onMounted } from 'vue'
+import { useCoinStore } from '../storage/coins'
+
+const coinStore = useCoinStore()
+const gameWon = ref(false)
+const coins = ref(0)
+const rewardCoins = computed(() => {
+  return {
+    easy: 10,
+    medium: 25,
+    hard: 50
+  }[selectedDifficulty.value]
+})
 
 const difficulties = {
   easy: { rows: 8, cols: 8, mines: 10 },
@@ -67,6 +91,7 @@ const mineCount = computed(() => difficulties[selectedDifficulty.value].mines)
 function resetGame() {
   grid.length = 0
   gameOver.value = false
+  gameWon.value = false
   firstClickMade.value = false
 
   for (let i = 0; i < rows.value * cols.value; i++) {
@@ -134,7 +159,7 @@ function getNeighbors(cell) {
 }
 
 function revealCell(cell) {
-  if (cell.revealed || cell.flagged || gameOver.value) return
+  if (cell.revealed || cell.flagged || gameOver.value || gameWon.value) return
 
   cell.revealed = true
 
@@ -146,6 +171,19 @@ function revealCell(cell) {
 
   if (cell.adjacentMines === 0) {
     getNeighbors(cell).forEach(revealCell)
+  }
+
+  checkWin()
+}
+
+function checkWin() {
+  const unrevealed = grid.filter(c => !c.revealed)
+  const onlyMinesLeft = unrevealed.every(c => c.mine)
+
+  if (onlyMinesLeft) {
+    gameWon.value = true
+    coinStore.add(rewardCoins.value)
+    revealAll()
   }
 }
 
