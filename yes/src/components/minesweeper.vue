@@ -68,8 +68,8 @@ const coins = ref(0)
 const rewardCoins = computed(() => {
   return {
     easy: 10,
-    medium: 25,
-    hard: 50
+    medium: 50,
+    hard: 100
   }[selectedDifficulty.value]
 })
 
