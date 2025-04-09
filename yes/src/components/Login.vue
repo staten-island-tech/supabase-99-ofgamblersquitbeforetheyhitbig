@@ -23,7 +23,7 @@
 
 <script setup>
 import { ref } from 'vue'
-import { supabase } from '../lib/supabase'
+import { supabase } from '@/lib/supabase'
 
 const email = ref('')
 const password = ref('')
@@ -50,11 +50,15 @@ const signUp = async () => {
     return
   }
 
-  const userId = data.user.id
+  const userId = data.user.id // This is the Supabase-generated UUID
 
-  const { error: profileError } = await supabase.from('profiles').insert([
+  // Convert UUID to a numeric value (bigint). In this case, we'll use a simple conversion for example purposes
+  const bigintId = BigInt('0x' + userId.replace(/-/g, '')) % BigInt('10000000000000000000') // Making sure it's within range for bigint
+
+  // Insert user profile into the 'User Login' table with a 'bigint' id
+  const { error: profileError } = await supabase.from('User Login').insert([
     {
-      id: userId,
+      id: bigintId.toString(), // Insert the bigint ID as a string
       Username: username.value,
       AvatarImageURL: avatarUrl.value,
       Birthdate: new Date(birthdate.value),
@@ -86,9 +90,9 @@ const login = async () => {
   const { data: userData } = await supabase.auth.getUser()
 
   const { data: userProfile, error: profileFetchError } = await supabase
-    .from('profiles')
+    .from('User Login') // Fetch data from 'User Login' table
     .select('*')
-    .eq('id', userData.user.id)
+    .eq('id', userData.user.id) // Use the user ID for querying
     .single()
 
   if (profileFetchError) {

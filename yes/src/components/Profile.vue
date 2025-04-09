@@ -33,10 +33,16 @@ const getProfile = async () => {
     return
   }
 
+  const userId = user.id // This is the Supabase-generated UUID
+
+  // Convert UUID to bigint (same as in login.vue)
+  const bigintId = BigInt('0x' + userId.replace(/-/g, '')) % BigInt('10000000000000000000') // Convert UUID to a bigint
+
+  // Fetch profile data from 'User Login' table using the bigint ID
   const { data, error } = await supabase
-    .from('User Login') // put your table name here
+    .from('User Login')
     .select('*')
-    .eq('id', user.id)
+    .eq('id', bigintId.toString()) // Query by the bigint ID
     .single()
 
   if (error) {
@@ -62,17 +68,36 @@ onMounted(() => {
 
 <style scoped>
 .profile {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-  align-items: center;
+  max-width: 400px;
+  margin: 50px auto;
+  padding: 30px;
+  background: #1e1e1e;
+  color: #fff;
+  border-radius: 12px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+  text-align: center;
 }
 
 .avatar {
-  width: 150px;
-  height: 150px;
-  border-radius: 100%;
+  width: 120px;
+  height: 120px;
   object-fit: cover;
-  border: 2px solid #000;
+  border-radius: 50%;
+  margin: 20px 0;
+  border: 3px solid #4f46e5;
+}
+
+button {
+  padding: 10px 20px;
+  background: #ef4444;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+button:hover {
+  background: #f87171;
 }
 </style>
