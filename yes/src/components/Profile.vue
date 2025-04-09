@@ -96,8 +96,4 @@ button {
   cursor: pointer;
   transition: 0.2s;
 }
-
-button:hover {
-  background: #f87171;
-}
 </style>
