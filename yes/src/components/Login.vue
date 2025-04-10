@@ -1,162 +1,82 @@
 <template>
-  <div class="login-box">
-    <h2>Login / Sign Up</h2>
+  <div class="flex flex-col gap-2 w-64 mx-auto mt-24 text-center">
+    <input
+      v-model="email"
+      placeholder="Email"
+      class="border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+    />
 
-    <input v-model="email" type="email" placeholder="Email" />
-    <input v-model="password" type="password" placeholder="Password" />
-    <input v-model="username" type="text" placeholder="Username (sign up only)" />
-    <input v-model="avatarUrl" type="text" placeholder="Avatar Image URL (optional)" />
-    <input v-model="birthdate" type="date" />
+    <input
+      v-model="password"
+      type="password"
+      placeholder="Password"
+      class="border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+    />
 
-    <div class="buttons">
-      <button @click="signUp">Sign Up</button>
-      <button @click="login">Log In</button>
-    </div>
+    <button
+      @click="handleLogin"
+      v-if="mode === 'login'"
+      class="bg-blue-500 text-white py-2 rounded hover:bg-blue-600 transition"
+    >
+      Login
+    </button>
 
-    <div class="output">
-      <p v-if="error" class="error">{{ error }}</p>
-      <p v-if="success" class="success">{{ success }}</p>
-      <pre v-if="profile">{{ profile }}</pre>
-    </div>
+    <button
+      @click="handleSignup"
+      v-else
+      class="bg-green-500 text-white py-2 rounded hover:bg-green-600 transition"
+    >
+      Sign Up
+    </button>
+
+    <p v-if="error" class="text-red-500 text-sm">{{ error }}</p>
+    <p v-if="success" class="text-green-500 text-sm">{{ success }}</p>
+
+    <p class="text-blue-500 text-xs cursor-pointer hover:underline" @click="toggleMode">
+      {{ mode === 'login' ? "Don't have an account? Sign Up" : 'Already have an account? Login' }}
+    </p>
   </div>
 </template>
 
 <script setup>
 import { ref } from 'vue'
-import { supabase } from '@/lib/supabase'
+import { useUserStore } from '@/stores/auth'
 
+const userStore = useUserStore()
 const email = ref('')
 const password = ref('')
-const username = ref('')
-const avatarUrl = ref('')
-const birthdate = ref('')
-
 const error = ref('')
 const success = ref('')
-const profile = ref(null)
+const mode = ref('login')
 
-const signUp = async () => {
+const toggleMode = () => {
   error.value = ''
   success.value = ''
-  profile.value = null
+  mode.value = mode.value === 'login' ? 'signup' : 'login'
+}
 
-  const { data, error: signUpError } = await supabase.auth.signUp({
-    email: email.value,
-    password: password.value,
-  })
+const handleLogin = async () => {
+  error.value = ''
+  success.value = ''
 
-  if (signUpError) {
-    error.value = signUpError.message
-    return
-  }
-
-  const userId = data.user.id // This is the Supabase-generated UUID
-
-  // Convert UUID to a numeric value (bigint). In this case, we'll use a simple conversion for example purposes
-  const bigintId = BigInt('0x' + userId.replace(/-/g, '')) % BigInt('10000000000000000000') // Making sure it's within range for bigint
-
-  // Insert user profile into the 'User Login' table with a 'bigint' id
-  const { error: profileError } = await supabase.from('User Login').insert([
-    {
-      id: bigintId.toString(), // Insert the bigint ID as a string
-      Username: username.value,
-      AvatarImageURL: avatarUrl.value,
-      Birthdate: new Date(birthdate.value),
-    },
-  ])
-
-  if (profileError) {
-    error.value = profileError.message
-  } else {
-    success.value = 'Sign up successful! Please check your email to confirm your account.'
+  try {
+    await userStore.login(email.value, password.value)
+    success.value = 'Logged in successfully!'
+  } catch (err) {
+    error.value = err.message
   }
 }
 
-const login = async () => {
+const handleSignup = async () => {
   error.value = ''
   success.value = ''
-  profile.value = null
 
-  const { data, error: loginError } = await supabase.auth.signInWithPassword({
-    email: email.value,
-    password: password.value,
-  })
-
-  if (loginError) {
-    error.value = loginError.message
-    return
-  }
-
-  const { data: userData } = await supabase.auth.getUser()
-
-  const { data: userProfile, error: profileFetchError } = await supabase
-    .from('User Login') // Fetch data from 'User Login' table
-    .select('*')
-    .eq('id', userData.user.id) // Use the user ID for querying
-    .single()
-
-  if (profileFetchError) {
-    error.value = profileFetchError.message
-  } else {
-    success.value = 'Logged in successfully!'
-    profile.value = JSON.stringify(userProfile, null, 2)
+  try {
+    await userStore.signup(email.value, password.value)
+    success.value = 'Account created successfully! Now log in.'
+    mode.value = 'login'
+  } catch (err) {
+    error.value = err.message
   }
 }
 </script>
-
-<style scoped>
-.login-box {
-  max-width: 450px;
-  margin: 5rem auto;
-  padding: 2rem;
-  border-radius: 16px;
-  background-color: #f9fafb;
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
-  font-family: sans-serif;
-  text-align: center;
-}
-
-input {
-  width: 100%;
-  padding: 0.75rem;
-  margin: 0.4rem 0;
-  border: 1px solid #ccc;
-  border-radius: 8px;
-  font-size: 1rem;
-}
-
-.buttons {
-  display: flex;
-  gap: 10px;
-  margin-top: 1rem;
-}
-
-button {
-  flex: 1;
-  padding: 0.75rem;
-  background: #4f46e5;
-  color: white;
-  border: none;
-  border-radius: 8px;
-  font-weight: bold;
-  cursor: pointer;
-  transition: background 0.2s ease;
-}
-
-button:hover {
-  background: #3730a3;
-}
-
-.output {
-  margin-top: 1rem;
-  text-align: left;
-}
-
-.error {
-  color: red;
-}
-
-.success {
-  color: green;
-}
-</style>
