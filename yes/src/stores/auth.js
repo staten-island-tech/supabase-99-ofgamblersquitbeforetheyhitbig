@@ -25,7 +25,12 @@ export const useUserStore = defineStore('user', {
         email,
         password,
       })
-      if (error) throw error
+
+      if (error) {
+        console.log('Signup Error:', error)
+        throw error
+      }
+
       this.user = data.user
     },
 
