@@ -1,20 +1,45 @@
 import { defineStore } from 'pinia'
-import { ref, watch } from 'vue'
+import { ref } from 'vue'
+import { supabase } from '@/lib/supabase'
+import { useUserStore } from '../stores/auth'
 
 export const useCoinStore = defineStore('coins', () => {
-  const coins = ref(Number(localStorage.getItem('coins')) || 0)
+  const coins = ref(0)
+  const userStore = useUserStore()
 
-  function add(amount) {
+  async function loadCoins() {
+    const user = userStore.user
+    if (!user) return
+
+    const { data, error } = await supabase
+      .from('profiles')
+      .select('coins')
+      .eq('id', user.id)
+      .single()
+
+    if (!error && data) {
+      coins.value = data.coins
+    }
+  }
+
+  async function saveCoins() {
+    const user = userStore.user
+    if (!user) return
+
+    await supabase
+      .from('profiles')
+      .upsert({ id: user.id, coins: coins.value }) // `upsert` creates or updates
+  }
+
+  async function add(amount) {
     coins.value += amount
+    await saveCoins()
   }
 
-  function reset() {
+  async function reset() {
     coins.value = 0
+    await saveCoins()
   }
 
-  watch(coins, (newVal) => {
-    localStorage.setItem('coins', newVal)
-  })
-
-  return { coins, add, reset }
+  return { coins, loadCoins, add, reset }
 })

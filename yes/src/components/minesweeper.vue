@@ -1,5 +1,5 @@
 <template>
-  <div class="minesweeper p-4 space-y-4">
+ <div class="minesweeper p-4 space-y-4">
     <div class="flex items-center justify-between">
       <h2 class="text-xl font-semibold">Minesweeper</h2>
       <select v-model="selectedDifficulty" @change="resetGame" class="border px-2 py-1 rounded">
@@ -8,7 +8,9 @@
         <option value="hard">Hard (14x14, 25 mines)</option>
       </select>
     </div>
+
     <p class="text-sm text-gray-600">Total Coins: {{ coinStore.coins }}</p>
+
     <div
       class="grid"
       :style="`grid-template-columns: repeat(${cols}, 30px);`"
@@ -21,13 +23,14 @@
         :class="[
           'cell',
           {
+            revealed: cell.revealed,
             'bg-gray-300': !cell.revealed,
             'bg-white': cell.revealed && !cell.mine,
             'bg-red-400': cell.revealed && cell.mine,
             'text-blue-700': cell.revealed && cell.adjacentMines === 1,
             'text-green-700': cell.revealed && cell.adjacentMines === 2,
             'text-red-700': cell.revealed && cell.adjacentMines >= 3,
-          },
+          }
         ]"
       >
         <span v-if="cell.flagged && !cell.revealed">🚩</span>
@@ -43,18 +46,18 @@
         Restart Game
       </button>
     </div>
+
     <div v-else-if="gameWon" class="mt-4 text-center">
-  <p class="text-lg font-semibold text-green-600 mb-2">🎉 You Win!</p>
-  <p class="text-md mb-2">+{{ rewardCoins }} coins earned!</p>
-  <p class="text-sm text-gray-600">Total Coins: {{ coins }}</p>
-  <button
-    @click="resetGame"
-    class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600"
-  >
-    Play Again
-  </button>
-</div>
-    
+      <p class="text-lg font-semibold text-green-600 mb-2">🎉 You Win!</p>
+      <p class="text-md mb-2">+{{ rewardCoins }} coins earned!</p>
+      <p class="text-sm text-gray-600">Total Coins: {{ coins }}</p>
+      <button
+        @click="resetGame"
+        class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600"
+      >
+        Play Again
+      </button>
+    </div>
   </div>
 </template>
 
@@ -204,12 +207,15 @@ onMounted(() => {
 <style scoped>
 .grid {
   display: grid;
-  gap: 2px;
+  gap: 4px;
+  margin-top: 1rem;
 }
+
 .cell {
   width: 30px;
   height: 30px;
-  border: 1px solid #999;
+  border-radius: 6px;
+  background-color: #d1d5db; /* gray-300 */
   display: flex;
   align-items: center;
   justify-content: center;
@@ -217,5 +223,40 @@ onMounted(() => {
   font-size: 0.875rem;
   cursor: pointer;
   user-select: none;
+  transition: background-color 0.2s, transform 0.1s;
+}
+
+.cell:hover {
+  background-color: #cbd5e1; /* lighter gray for hover */
+  transform: scale(1.05);
+}
+
+/* Cell States */
+.bg-white {
+  background-color: #f9fafb !important;
+}
+
+.bg-red-400 {
+  background-color: #f87171 !important;
+  color: white;
+}
+
+/* Colors for numbers */
+.text-blue-700 {
+  color: #1d4ed8;
+}
+.text-green-700 {
+  color: #15803d;
+}
+.text-red-700 {
+  color: #b91c1c;
+}
+
+.cell span {
+  font-size: 1rem;
+}
+
+.cell.revealed {
+  box-shadow: inset 0 0 4px rgba(0, 0, 0, 0.2);
 }
 </style>
