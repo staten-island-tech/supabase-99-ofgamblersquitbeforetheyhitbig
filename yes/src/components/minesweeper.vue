@@ -215,7 +215,7 @@ onMounted(() => {
   width: 30px;
   height: 30px;
   border-radius: 6px;
-  background-color: #d1d5db; /* gray-300 */
+  background-color: #d1d5db; 
   display: flex;
   align-items: center;
   justify-content: center;
@@ -227,11 +227,10 @@ onMounted(() => {
 }
 
 .cell:hover {
-  background-color: #cbd5e1; /* lighter gray for hover */
+  background-color: #cbd5e1;
   transform: scale(1.05);
 }
 
-/* Cell States */
 .bg-white {
   background-color: #f9fafb !important;
 }
