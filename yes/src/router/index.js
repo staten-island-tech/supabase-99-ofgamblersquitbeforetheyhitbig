@@ -1,7 +1,7 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import HomeView from '../views/HomeView.vue'
 import Minesweeper from '@/components/minesweeper.vue'
-import { useUserStore } from '@/stores/auth'
+import { useUserStore } from '@/storage/auth'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),

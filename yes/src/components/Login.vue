@@ -40,7 +40,7 @@
 
 <script setup>
 import { ref } from 'vue'
-import { useUserStore } from '@/stores/auth'
+import { useUserStore } from '@/storage/auth'
 
 const userStore = useUserStore()
 const email = ref('')
