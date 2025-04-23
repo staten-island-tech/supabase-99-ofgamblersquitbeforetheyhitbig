@@ -1,7 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import HomeView from '../views/HomeView.vue'
-import Minesweeper from '@/components/minesweeper.vue'
-import { useUserStore } from '@/stores/auth'
+import minesweeper from '@/views/minesweeper.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -15,26 +14,14 @@ const router = createRouter({
       path: '/about',
       name: 'about',
       component: () => import('../views/AboutView.vue'),
-      meta: { requiresAuth: true },
     },
     {
       path: '/minesweeper',
       name: 'minesweeper',
-      component: Minesweeper,
-      meta: { requiresAuth: true }, // protect minesweeper page
+      component: minesweeper,
+      meta: { requiresAuth: true },
     },
   ],
-})
-
-// Navigation Guard
-router.beforeEach((to, from, next) => {
-  const userStore = useUserStore()
-
-  if (to.meta.requiresAuth && !userStore.user) {
-    next('/') // send them home if not logged in
-  } else {
-    next()
-  }
 })
 
 export default router
