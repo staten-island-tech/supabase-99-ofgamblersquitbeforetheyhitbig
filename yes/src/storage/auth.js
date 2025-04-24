@@ -1,38 +1,45 @@
 import { defineStore } from 'pinia'
+import { ref } from 'vue'
 import { supabase } from '@/lib/supabase'
-export const useUserStore = defineStore('user', {
-  state: () => ({
-    user: null,
-  }),
 
-  actions: {
-    async fetchUser() {
-      const { data } = await supabase.auth.getUser()
-      this.user = data.user
-    },
+export const useAuthStore = defineStore('auth', () => {
+  const user = ref(null)
+  const error = ref(null)
+  const loading = ref(false)
 
-    async login(email, password) {
-      const { error, data } = await supabase.auth.signInWithPassword({
-        email,
-        password,
-      })
-      if (error) throw error
-      this.user = data.user
-    },
+  const signUp = async (email, password) => {
+    loading.value = true
+    const { data, error: err } = await supabase.auth.signUp({ email, password })
+    user.value = data.user
+    error.value = err?.message
+    loading.value = false
+  }
 
-    async signup(email, password) {
-      const { error, data } = await supabase.auth.signUp({
-        email,
-        password,
-      })
-      if (error) throw error
-      this.user = data.user
-    },
+  const signIn = async (email, password) => {
+    loading.value = true
+    const { data, error: err } = await supabase.auth.signInWithPassword({ email, password })
+    user.value = data.user
+    error.value = err?.message
+    loading.value = false
+  }
 
-    async logout() {
-      const { error } = await supabase.auth.signOut()
-      if (error) throw error
-      this.user = null
-    },
-  },
+  const signOut = async () => {
+    await supabase.auth.signOut()
+    user.value = null
+  }
+
+  const fetchUser = async () => {
+    const { data } = await supabase.auth.getUser()
+    user.value = data.user
+  }
+
+  return {
+    user,
+    error,
+    loading,
+    signIn,
+    signUp,
+    signOut,
+    fetchUser,
+  }
 })

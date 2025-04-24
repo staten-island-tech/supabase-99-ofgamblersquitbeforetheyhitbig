@@ -1,7 +1,17 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import HomeView from '../views/HomeView.vue'
+<<<<<<< HEAD
 import Minesweeper from '@/components/minesweeper.vue'
 import { useUserStore } from '@/storage/auth'
+=======
+import minesweeper from '@/views/minesweeper.vue'
+import { useAuthStore } from '@/stores/auth'
+
+const fetchUser = async () => {
+  const { data } = await supabase.auth.getUser()
+  user.value = data.user
+}
+>>>>>>> Ryan
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -19,21 +29,24 @@ const router = createRouter({
     {
       path: '/minesweeper',
       name: 'minesweeper',
-      component: Minesweeper,
-      meta: { requiresAuth: true }, // protect minesweeper page
+      component: minesweeper,
+      meta: { requiresAuth: true },
     },
   ],
 })
 
-// Navigation Guard
-router.beforeEach((to, from, next) => {
-  const userStore = useUserStore()
+router.beforeEach(async (to, from, next) => {
+  const auth = useAuthStore()
 
-  if (to.meta.requiresAuth && !userStore.user) {
-    next('/') // send them home if not logged in
-  } else {
-    next()
+  if (!auth.user) {
+    await auth.fetchUser()
   }
+
+  if (to.meta.requiresAuth && !auth.user) {
+    return next('/')
+  }
+
+  next()
 })
 
 export default router
