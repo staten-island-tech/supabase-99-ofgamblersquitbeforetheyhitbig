@@ -4,11 +4,6 @@ import HomeView from '../views/HomeView.vue'
 import minesweeper from '@/views/minesweeper.vue'
 import { useAuthStore } from '@/stores/auth'
 
-const fetchUser = async () => {
-  const { data } = await supabase.auth.getUser()
-  user.value = data.user
-}
-
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
@@ -30,16 +25,16 @@ const router = createRouter({
     },
   ],
 })
-
 router.beforeEach(async (to, from, next) => {
   const auth = useAuthStore()
 
+  // ✅ call the Pinia store's fetchUser(), not a local one
   if (!auth.user) {
     await auth.fetchUser()
   }
 
   if (to.meta.requiresAuth && !auth.user) {
-    return next('/')
+    return next('/') // redirect if not logged in
   }
 
   next()
