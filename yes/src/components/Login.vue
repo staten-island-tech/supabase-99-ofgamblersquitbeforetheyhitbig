@@ -1,7 +1,7 @@
 <script setup>
 import { ref } from 'vue'
 <<<<<<< HEAD
-import { useUserStore } from '@/storage/auth'
+import { useUserStore } from '@/stores/auth'
 =======
 import { useAuthStore } from '@/stores/auth'
 

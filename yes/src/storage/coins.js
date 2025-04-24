@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
 import { supabase } from '@/lib/supabase'
-import { useUserStore } from './auth'
+import { useUserStore } from '../stores/auth'
 
 export const useCoinStore = defineStore('coins', () => {
   const coins = ref(0)
@@ -26,9 +26,7 @@ export const useCoinStore = defineStore('coins', () => {
     const user = userStore.user
     if (!user) return
 
-    await supabase
-      .from('profiles')
-      .upsert({ id: user.id, coins: coins.value }) // `upsert` creates or updates
+    await supabase.from('profiles').upsert({ id: user.id, coins: coins.value }) // `upsert` creates or updates
   }
 
   async function add(amount) {
