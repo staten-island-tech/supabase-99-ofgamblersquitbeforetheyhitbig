@@ -1,6 +1,10 @@
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
 import { supabase } from '@/lib/supabase'
+const fetchUser = async () => {
+  const { data } = await supabase.auth.getUser()
+  user.value = data.user
+}
 
 export const useAuthStore = defineStore('auth', () => {
   const user = ref(null)
