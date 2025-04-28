@@ -27,22 +27,21 @@ const handleLogout = async () => {
   <div class="auth-container">
     <h1>{{ isLoggedIn ? 'Welcome!' : isLogin ? 'Login' : 'Sign Up' }}</h1>
 
-    <!-- 🔒 Show login/signup form if not logged in -->
+
     <form v-if="!isLoggedIn" @submit.prevent="handleAuth">
       <input v-model="email" type="email" placeholder="Email" required />
       <input v-model="password" type="password" placeholder="Password" required />
       <button type="submit">{{ isLogin ? 'Login' : 'Sign Up' }}</button>
     </form>
 
-    <!-- 🔁 Toggle between login and sign up -->
+  
     <p v-if="!isLoggedIn" @click="isLogin = !isLogin" style="cursor: pointer; margin-top: 10px">
       {{ isLogin ? 'No account? Sign up' : 'Already have an account? Login' }}
     </p>
 
-    <!-- ⚠️ Error display -->
     <p v-if="auth.error" class="error">{{ auth.error }}</p>
 
-    <!-- ✅ Show logout button if logged in -->
+    
     <button v-if="isLoggedIn" @click="handleLogout" class="logout-btn">Logout</button>
   </div>
 </template>

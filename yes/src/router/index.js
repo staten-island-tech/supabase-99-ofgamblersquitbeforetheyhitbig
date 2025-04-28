@@ -28,13 +28,13 @@ const router = createRouter({
 router.beforeEach(async (to, from, next) => {
   const auth = useAuthStore()
 
-  // ✅ call the Pinia store's fetchUser(), not a local one
+
   if (!auth.user) {
     await auth.fetchUser()
   }
 
   if (to.meta.requiresAuth && !auth.user) {
-    return next('/') // redirect if not logged in
+    return next('/') 
   }
 
   next()
