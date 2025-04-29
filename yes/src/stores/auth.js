@@ -12,11 +12,15 @@ export const useAuthStore = defineStore('auth', () => {
   const loading = ref(false)
 
   const signUp = async (email, password) => {
-    loading.value = true
-    const { data, error: err } = await supabase.auth.signUp({ email, password })
-    user.value = data.user
-    error.value = err?.message
-    loading.value = false
+    const { data, error: err } = await supabase.auth.signUp({
+      email,
+      password,
+    })
+    error.value = err?.message || null
+    user.value = data?.user || null
+
+    // ✅ return user to use in the component
+    return { user: data?.user, error: err }
   }
 
   const signIn = async (email, password) => {

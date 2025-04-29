@@ -4,6 +4,7 @@ import { useAuthStore } from '@/stores/auth'
 
 const auth = useAuthStore()
 
+const username = ref('')
 const email = ref('')
 const password = ref('')
 const isLogin = ref(true)
@@ -14,7 +15,20 @@ const handleAuth = async () => {
   if (isLogin.value) {
     await auth.signIn(email.value, password.value)
   } else {
-    await auth.signUp(email.value, password.value)
+    const { user, error } = await auth.signUp(email.value, password.value)
+    if (user && !error) {
+      // 👇 insert username into users table
+      const { error: insertError } = await supabase.from('users').insert([
+        {
+          id: user.id, // link by auth UID
+          email: email.value,
+          username: username.value,
+        },
+      ])
+      if (insertError) {
+        auth.error = insertError.message
+      }
+    }
   }
 }
 
@@ -31,6 +45,9 @@ const handleLogout = async () => {
     <form v-if="!isLoggedIn" @submit.prevent="handleAuth">
       <input v-model="email" type="email" placeholder="Email" required />
       <input v-model="password" type="password" placeholder="Password" required />
+      <!-- 👇 Only show username input on sign-up -->
+      <input v-if="!isLogin" v-model="username" type="text" placeholder="Username" required />
+
       <button type="submit">{{ isLogin ? 'Login' : 'Sign Up' }}</button>
     </form>
 
