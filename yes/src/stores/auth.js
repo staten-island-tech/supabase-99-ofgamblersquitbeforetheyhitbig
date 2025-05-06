@@ -16,10 +16,10 @@ export const useAuthStore = defineStore('auth', () => {
       email,
       password,
     })
+
     error.value = err?.message || null
     user.value = data?.user || null
 
-    // ✅ return user to use in the component
     return { user: data?.user, error: err }
   }
 
