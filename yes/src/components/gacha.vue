@@ -38,3 +38,6 @@ const gachaPool = [
 </script>
 
 <style scoped></style>
+
+
+// common, gooner, rare, legendary, korean, Lebron James
