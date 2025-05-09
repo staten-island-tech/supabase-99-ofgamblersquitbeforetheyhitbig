@@ -8,6 +8,7 @@ const auth = useAuthStore()
 const email = ref('')
 const password = ref('')
 const username = ref('')
+const ImageURL = ref('')
 const isLogin = ref(true)
 
 const handleAuth = async () => {
@@ -21,6 +22,7 @@ const handleAuth = async () => {
           id: user.id, // from Supabase Auth
           email: email.value,
           username: username.value, // 👈 your custom username
+          ImageURL: ImageURL.value,
         },
       ])
       if (insertError) {
@@ -40,6 +42,7 @@ const handleAuth = async () => {
 
       <!-- 👇 Show username only on sign-up -->
       <input v-if="!isLogin" v-model="username" type="text" placeholder="Username" required />
+      <input v-if="!isLogin" v-model="ImageURL" type="text" placeholder="ImageURL" required />
 
       <button type="submit">{{ isLogin ? 'Login' : 'Sign Up' }}</button>
     </form>
