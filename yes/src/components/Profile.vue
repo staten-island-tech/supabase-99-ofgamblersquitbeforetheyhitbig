@@ -6,6 +6,8 @@ const auth = useAuthStore()
 const handleLogout = async () => {
   await auth.signOut()
 }
+
+const { error } = await supabase.from('users')
 </script>
 
 <template>
