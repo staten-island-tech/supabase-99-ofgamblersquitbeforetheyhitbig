@@ -1,16 +1,34 @@
 <template>
-  <div class="p-4 max-w-md mx-auto">
-    <h1 class="text-2xl font-bold mb-4">🎯 Custom Gacha</h1>
+  <div class="p-6 max-w-xl mx-auto bg-white shadow-lg rounded-lg">
+    <h1 class="text-3xl font-bold mb-6 text-center text-purple-700">🎯 Gacha Pull</h1>
 
-    <button @click="singlePull" class="btn">Single Pull</button>
-    <button @click="tenPull" class="btn ml-2">10-Pull</button>
+    <div class="flex justify-center gap-4 mb-6">
+      <button
+        @click="singlePull"
+        class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg shadow transition"
+      >
+        Single Pull
+      </button>
+      <button
+        @click="tenPull"
+        class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg shadow transition"
+      >
+        10 Pull
+      </button>
+    </div>
 
-    <div v-if="results.length" class="mt-4">
-      <h2 class="text-lg font-semibold">Results:</h2>
-      <div v-for="(item, index) in results" :key="index" class="mt-2 p-2 border rounded">
-        <p><strong>{{ item.Name }}</strong> ({{ item.Rarity }})</p>
-        <p>{{ item.Desc }}</p>
-        <img :src="item.Image" alt="Image" class="w-24 mt-1" />
+    <div v-if="results.length" class="space-y-4">
+      <div
+        v-for="(item, index) in results"
+        :key="index"
+        class="flex items-center gap-4 p-4 border rounded-lg shadow-md"
+        :class="rarityColor(item.Rarity)"
+      >
+        <img :src="item.Image" alt="Character" class="w-20 h-20 object-cover rounded-md" />
+        <div>
+          <p class="text-xl font-semibold">{{ item.Name }} <span class="text-sm">({{ item.Rarity }})</span></p>
+          <p class="text-gray-700">{{ item.Desc }}</p>
+        </div>
       </div>
     </div>
   </div>
@@ -21,7 +39,6 @@ import { ref } from 'vue'
 
 const results = ref([])
 
-// Define rarity drop rates
 const rarityRates = {
   'Lebron James': 0.1,
   'Korean': 0.9,
@@ -31,7 +48,6 @@ const rarityRates = {
   'Common': 55
 }
 
-// Your gacha pool
 const gachaPool = [
   {
     Name: 'Andrew',
@@ -61,11 +77,11 @@ const gachaPool = [
     Name: 'Brude',
     Rarity: 'Common',
     Desc: 'Gotta be a top 10 korean',
-    Image: 'Andrew.png',
+    Image: 'Brude.png',
   },
+  
 ]
 
-// Weighted random rarity
 function getRandomRarity() {
   const roll = Math.random() * 100
   let total = 0
@@ -73,15 +89,13 @@ function getRandomRarity() {
     total += rate
     if (roll <= total) return rarity
   }
-  return 'Common' // Fallback
+  return 'Common'
 }
 
-// Pull one character from pool based on rarity
 function pullOneCharacter() {
-  const targetRarity = getRandomRarity()
-  const candidates = gachaPool.filter(c => c.Rarity === targetRarity)
-  if (candidates.length === 0) return null
-  return candidates[Math.floor(Math.random() * candidates.length)]
+  const rarity = getRandomRarity()
+  const pool = gachaPool.filter(c => c.Rarity === rarity)
+  return pool.length ? pool[Math.floor(Math.random() * pool.length)] : null
 }
 
 function singlePull() {
@@ -97,10 +111,23 @@ function tenPull() {
   }
   results.value = pulls
 }
-</script>
 
-<style scoped>
-.btn {
-     bg-purple-600 text-white px-4 py-2 rounded hover:bg-purple-700 transition;
+// Add rarity-based border color
+function rarityColor(rarity) {
+  switch (rarity) {
+    case 'Lebron James':
+      return 'border-yellow-500 bg-yellow-50'
+    case 'Korean':
+      return 'border-pink-400 bg-pink-50'
+    case 'Legendary':
+      return 'border-purple-500 bg-purple-50'
+    case 'Rare':
+      return 'border-blue-400 bg-blue-50'
+    case 'Gooner':
+      return 'border-green-400 bg-green-50'
+    case 'Common':
+    default:
+      return 'border-gray-300 bg-gray-50'
+  }
 }
-</style>
+</script>

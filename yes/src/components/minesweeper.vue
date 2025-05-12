@@ -63,7 +63,7 @@
 
 <script setup>
 import { reactive, ref, computed, onMounted } from 'vue'
-import { useCoinStore } from '../storage/coins'
+
 
 const coinStore = useCoinStore()
 const gameWon = ref(false)
