@@ -2,11 +2,14 @@
 import { useAuthStore } from '@/stores/auth'
 import { onMounted, ref } from 'vue'
 import { supabase } from '@/lib/supabase'
+import { useRouter } from 'vue-router'
 
 const auth = useAuthStore()
+const router = useRouter()
 
 const handleLogout = async () => {
   await auth.signOut()
+  router.push('/')
 }
 
 const profileData = ref({
