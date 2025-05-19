@@ -134,3 +134,7 @@ function rarityColor(rarity) {
   }
 }
 </script>
+
+<style scoped>
+
+</style>
