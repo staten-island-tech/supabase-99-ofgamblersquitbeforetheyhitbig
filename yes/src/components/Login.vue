@@ -16,12 +16,30 @@ const isLogin = ref(true)
 const handleAuth = async () => {
   if (isLogin.value) {
     await auth.signIn(email.value, password.value)
-
     if (auth.user) {
-      router.push('/about') // ✅ redirect after login
+      router.push('/profile')
     }
   } else {
+    // 👇 Check if username is already taken
+    const { data: existingUsers, error: checkError } = await supabase
+      .from('users')
+      .select('id')
+      .eq('username', username.value)
+      .maybeSingle()
+
+    if (checkError) {
+      auth.error = 'Username taken.'
+      return
+    }
+
+    if (existingUsers) {
+      auth.error = 'Username already taken.'
+      return
+    }
+
+    // 👇 Proceed with signup
     const { user, error } = await auth.signUp(email.value, password.value)
+
     if (user && !error) {
       const { error: insertError } = await supabase.from('users').insert([
         {
@@ -36,8 +54,9 @@ const handleAuth = async () => {
         return
       }
 
-      // ✅ redirect after signup
       router.push('/about')
+    } else if (error) {
+      auth.error = error.message
     }
   }
 }
