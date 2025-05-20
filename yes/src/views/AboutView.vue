@@ -1,13 +1,9 @@
 <template>
-    <div>
-<gacha/>
-    </div>
+  <div><Profile /></div>
 </template>
 
 <script setup>
-import gacha from '@/components/gacha.vue';
+import Profile from '@/components/Profile.vue'
 </script>
 
-<style scoped>
-
-</style>
+<style scoped></style>

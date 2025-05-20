@@ -1,48 +1,86 @@
 <script setup>
-import { ref, computed } from 'vue'
+import { ref } from 'vue'
 import { useAuthStore } from '@/stores/auth'
+import { supabase } from '@/lib/supabase'
+import { useRouter } from 'vue-router'
+import AboutView from '@/views/AboutView.vue'
 
 const auth = useAuthStore()
-
+const router = useRouter()
 const email = ref('')
 const password = ref('')
+const username = ref('')
+const ImageURL = ref('')
 const isLogin = ref(true)
-
-const isLoggedIn = computed(() => !!auth.user)
 
 const handleAuth = async () => {
   if (isLogin.value) {
     await auth.signIn(email.value, password.value)
+    if (auth.user) {
+      router.push('/about')
+    }
   } else {
-    await auth.signUp(email.value, password.value)
-  }
-}
+    // 👇 Check if username is already taken
+    const { data: existingUsers, error: checkError } = await supabase
+      .from('users')
+      .select('id')
+      .eq('username', username.value)
+      .maybeSingle()
 
-const handleLogout = async () => {
-  await auth.signOut()
+    if (checkError) {
+      auth.error = 'Username taken.'
+      return
+    }
+
+    if (existingUsers) {
+      auth.error = 'Username already taken.'
+      return
+    }
+
+    // 👇 Proceed with signup
+    const { user, error } = await auth.signUp(email.value, password.value)
+
+    if (user && !error) {
+      const { error: insertError } = await supabase.from('users').insert([
+        {
+          id: user.id,
+          email: email.value,
+          username: username.value,
+          ImageURL: ImageURL.value,
+        },
+      ])
+      if (insertError) {
+        auth.error = insertError.message
+        return
+      }
+
+      router.push('/about')
+    } else if (error) {
+      auth.error = error.message
+    }
+  }
 }
 </script>
 
 <template>
   <div class="auth-container">
-    <h1>{{ isLoggedIn ? 'Welcome!' : isLogin ? 'Login' : 'Sign Up' }}</h1>
-
-
-    <form v-if="!isLoggedIn" @submit.prevent="handleAuth">
+    <h1>{{ isLogin ? 'Login' : 'Sign Up' }}</h1>
+    <form @submit.prevent="handleAuth">
       <input v-model="email" type="email" placeholder="Email" required />
       <input v-model="password" type="password" placeholder="Password" required />
+
+      <!-- 👇 Show username only on sign-up -->
+      <input v-if="!isLogin" v-model="username" type="text" placeholder="Username" required />
+      <input v-if="!isLogin" v-model="ImageURL" type="text" placeholder="ImageURL" required />
+
       <button type="submit">{{ isLogin ? 'Login' : 'Sign Up' }}</button>
     </form>
 
-  
-    <p v-if="!isLoggedIn" @click="isLogin = !isLogin" style="cursor: pointer; margin-top: 10px">
+    <p @click="isLogin = !isLogin" style="cursor: pointer">
       {{ isLogin ? 'No account? Sign up' : 'Already have an account? Login' }}
     </p>
 
     <p v-if="auth.error" class="error">{{ auth.error }}</p>
-
-    
-    <button v-if="isLoggedIn" @click="handleLogout" class="logout-btn">Logout</button>
   </div>
 </template>
 
@@ -53,36 +91,8 @@ const handleLogout = async () => {
   padding: 2rem;
   border-radius: 1rem;
   box-shadow: 0 0 12px rgba(0, 0, 0, 0.1);
-  text-align: center;
 }
-
-input {
-  display: block;
-  width: 100%;
-  padding: 0.75rem;
-  margin-bottom: 1rem;
-  border: 1px solid #ccc;
-  border-radius: 0.5rem;
-  font-size: 1rem;
-}
-
-button {
-  padding: 0.75rem 1.5rem;
-  font-size: 1rem;
-  border: none;
-  border-radius: 0.5rem;
-  background-color: #4f46e5;
-  color: white;
-  cursor: pointer;
-}
-
-button.logout-btn {
-  background-color: #e53e3e;
-  margin-top: 1rem;
-}
-
 .error {
   color: red;
-  margin-top: 1rem;
 }
 </style>
