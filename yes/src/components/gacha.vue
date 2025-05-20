@@ -1,33 +1,38 @@
 <template>
-  <div class="p-6 max-w-xl mx-auto bg-white shadow-lg rounded-lg">
-    <h1 class="text-3xl font-bold mb-6 text-center text-purple-700">🎯 Gacha Pull</h1>
+  <div class="main-layout">
+    <!-- Side Tab for Rarity Rates -->
+    <aside class="rarity-tab">
+      <h2 class="rarity-title">Rarity Rates</h2>
+      <ul>
+        <li v-for="(rate, rarity) in rarityRates" :key="rarity" :class="rarityClass(rarity)">
+          <span class="rarity-label">{{ rarity }}</span>
+          <span class="rarity-percent">{{ rate }}%</span>
+        </li>
+      </ul>
+    </aside>
 
-    <div class="flex justify-center gap-4 mb-6">
-      <button
-        @click="singlePull"
-        class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg shadow transition"
-      >
-        Single Pull
-      </button>
-      <button
-        @click="tenPull"
-        class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg shadow transition"
-      >
-        10 Pull
-      </button>
-    </div>
+    <!-- Main Gacha Content -->
+    <div class="container">
+      <h1 class="title">🎯 Gacha Pull</h1>
 
-    <div v-if="results.length" class="space-y-4">
-      <div
-        v-for="(item, index) in results"
-        :key="index"
-        class="flex items-center gap-4 p-4 border rounded-lg shadow-md"
-        :class="rarityColor(item.Rarity)"
-      >
-        <img :src="item.Image" alt="Character" class="w-20 h-20 object-cover rounded-md" />
-        <div>
-          <p class="text-xl font-semibold">{{ item.Name }} <span class="text-sm">({{ item.Rarity }})</span></p>
-          <p class="text-gray-700">{{ item.Desc }}</p>
+      <div class="buttons">
+        <button @click="singlePull" class="button-single">Single Pull</button>
+        <button @click="tenPull" class="button-ten">10 Pull</button>
+      </div>
+
+      <div v-if="results.length" class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div
+          v-for="(item, index) in results"
+          :key="index"
+          class="card"
+          :class="rarityClass(item.Rarity)"
+        >
+          <img :src="item.Image" alt="Character" class="character-img" />
+          <p class="character-name">{{ item.Name }}</p>
+          <p class="rarity-stars">
+            <span v-for="n in getStars(item.Rarity)" :key="n">⭐</span>
+          </p>
+          <p class="character-desc">{{ item.Desc }}</p>
         </div>
       </div>
     </div>
@@ -40,12 +45,11 @@ import { ref } from 'vue'
 const results = ref([])
 
 const rarityRates = {
-  'Lebron James': 0.1,
-  'Korean': 0.9,
-  'Legendary': 9,
-  'Rare': 15,
-  'Gooner': 20,
-  'Common': 55
+  'Lebron James': 0.01,
+  'Korean': 0.1,
+  'Legendary': 1,
+  'Rare': 25,
+  'Common': 73.89
 }
 
 const gachaPool = [
@@ -115,26 +119,209 @@ function tenPull() {
   results.value = pulls
 }
 
-
-function rarityColor(rarity) {
+function rarityClass(rarity) {
   switch (rarity) {
-    case 'Lebron James':
-      return 'border-yellow-500 bg-yellow-50'
-    case 'Korean':
-      return 'border-pink-400 bg-pink-50'
-    case 'Legendary':
-      return 'border-purple-500 bg-purple-50'
-    case 'Rare':
-      return 'border-blue-400 bg-blue-50'
-    case 'Gooner':
-      return 'border-green-400 bg-green-50'
-    case 'Common':
-    default:
-      return 'border-gray-300 bg-gray-50'
+    case 'Lebron James': return 'border-lebron'
+    case 'Korean': return 'border-korean'
+    case 'Legendary': return 'border-legendary'
+    case 'Rare': return 'border-rare'
+    case 'Gooner': return 'border-gooner'
+    default: return 'border-common'
+  }
+}
+
+function getStars(rarity) {
+  switch (rarity) {
+    case 'Lebron James': return 6
+    case 'Legendary': return 5
+    case 'Rare': return 4
+    case 'Gooner': return 3
+    case 'Korean': return 2
+    default: return 1
   }
 }
 </script>
 
 <style scoped>
+.container {
+  padding: 1.5rem;
+  max-width: 48rem;
+  margin: auto;
+  background-color: white;
+  border-radius: 0.75rem;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+}
 
+.title {
+  font-size: 2rem;
+  font-weight: 800;
+  margin-bottom: 1.5rem;
+  text-align: center;
+  color: #7e22ce;
+}
+
+.buttons {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.button-single, .button-ten {
+  padding: 0.5rem 1.5rem;
+  font-weight: 600;
+  border-radius: 0.5rem;
+  color: white;
+  transition: background-color 0.2s ease;
+}
+
+.button-single {
+  background-color: #3b82f6;
+}
+
+.button-single:hover {
+  background-color: #2563eb;
+}
+
+.button-ten {
+  background-color: #22c55e;
+}
+
+.button-ten:hover {
+  background-color: #16a34a;
+}
+
+.card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 1rem;
+  border: 3px solid transparent;
+  border-radius: 1rem;
+  box-shadow: 0 10px 20px rgba(0,0,0,0.15);
+  background: linear-gradient(to bottom right, #ffffff, #f3f4f6);
+  transition: transform 0.2s, box-shadow 0.2s;
+  overflow: hidden;
+}
+
+.card:hover {
+  transform: scale(1.03);
+  box-shadow: 0 15px 25px rgba(0,0,0,0.2);
+}
+
+.character-img {
+  width: 6rem;
+  height: 6rem;
+  object-fit: cover;
+  border-radius: 9999px;
+  border: 3px solid white;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+  margin-bottom: 0.5rem;
+}
+
+.character-name {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #1f2937;
+}
+
+.character-desc {
+  font-size: 0.875rem;
+  color: #4b5563;
+  margin-top: 0.25rem;
+}
+
+.rarity-stars {
+  margin-top: 0.25rem;
+  color: gold;
+  font-size: 1.25rem;
+}
+
+.border-lebron {
+  border-image: linear-gradient(45deg, gold, orange) 1;
+  background: radial-gradient(circle at center, #fffbe6, #ffe8b3);
+}
+
+.border-korean {
+  border-image: linear-gradient(45deg, #ec4899, #f472b6) 1;
+  background: radial-gradient(circle at center, #fdf2f8, #fce7f3);
+}
+
+.border-legendary {
+  border-image: linear-gradient(45deg, #9333ea, #c084fc) 1;
+  background: radial-gradient(circle at center, #f3e8ff, #ede9fe);
+}
+
+.border-rare {
+  border-image: linear-gradient(45deg, #3b82f6, #93c5fd) 1;
+  background: radial-gradient(circle at center, #eff6ff, #dbeafe);
+}
+
+.border-gooner {
+  border-image: linear-gradient(45deg, #10b981, #6ee7b7) 1;
+  background: radial-gradient(circle at center, #ecfdf5, #d1fae5);
+}
+
+.border-common {
+  border-image: linear-gradient(45deg, #9ca3af, #d1d5db) 1;
+  background: radial-gradient(circle at center, #f3f4f6, #e5e7eb);
+}
+
+.main-layout {
+  display: flex;
+  gap: 2rem;
+  padding: 2rem;
+}
+
+.rarity-tab {
+  min-width: 200px;
+  background-color: #f9fafb;
+  border-radius: 0.75rem;
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.08);
+  padding: 1rem;
+  height: fit-content;
+}
+
+.rarity-title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  margin-bottom: 1rem;
+  color: #374151;
+  text-align: center;
+}
+
+.rarity-tab ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.rarity-tab li {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.5rem;
+  margin-bottom: 0.5rem;
+  border-radius: 0.5rem;
+  font-weight: 500;
+  color: #1f2937;
+  font-size: 0.95rem;
+  background: #e5e7eb;
+  transition: transform 0.2s;
+}
+
+.rarity-tab li:hover {
+  transform: translateX(5px);
+}
+
+.rarity-label {
+  flex-grow: 1;
+}
+
+.rarity-percent {
+  font-weight: 600;
+  color: #6b7280;
+}
 </style>
