@@ -17,7 +17,7 @@ const handleAuth = async () => {
   if (isLogin.value) {
     await auth.signIn(email.value, password.value)
     if (auth.user) {
-      router.push('/profile')
+      router.push('/about')
     }
   } else {
     // 👇 Check if username is already taken
