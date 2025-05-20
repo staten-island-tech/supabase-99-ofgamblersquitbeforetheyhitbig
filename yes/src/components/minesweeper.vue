@@ -1,5 +1,5 @@
 <template>
- <div class="minesweeper p-4 space-y-4">
+  <div class="minesweeper p-4 space-y-4">
     <div class="flex items-center justify-between">
       <h2 class="text-xl font-semibold">Minesweeper</h2>
       <select v-model="selectedDifficulty" @change="resetGame" class="border px-2 py-1 rounded">
@@ -9,11 +9,10 @@
       </select>
     </div>
 
-    <p class="text-sm text-gray-600">Total Coins: {{ coinStore.coins }}</p>
-
     <div
       class="grid"
-      :style="`grid-template-columns: repeat(${cols}, 30px);`"
+:style="{ gridTemplateColumns: 'repeat(' + cols + ', 30px)' }"
+      
     >
       <div
         v-for="(cell, index) in grid"
@@ -23,7 +22,6 @@
         :class="[
           'cell',
           {
-            revealed: cell.revealed,
             'bg-gray-300': !cell.revealed,
             'bg-white': cell.revealed && !cell.mine,
             'bg-red-400': cell.revealed && cell.mine,
@@ -35,7 +33,7 @@
       >
         <span v-if="cell.flagged && !cell.revealed">🚩</span>
         <span v-else-if="cell.revealed">
-          {{ cell.mine ? '💣' : cell.adjacentMines || '' }}
+          {{ cell.mine ? "💣" : cell.adjacentMines || '' }}
         </span>
       </div>
     </div>
@@ -46,35 +44,11 @@
         Restart Game
       </button>
     </div>
-
-    <div v-else-if="gameWon" class="mt-4 text-center">
-      <p class="text-lg font-semibold text-green-600 mb-2">🎉 You Win!</p>
-      <p class="text-md mb-2">+{{ rewardCoins }} coins earned!</p>
-      <p class="text-sm text-gray-600">Total Coins: {{ coins }}</p>
-      <button
-        @click="resetGame"
-        class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600"
-      >
-        Play Again
-      </button>
-    </div>
   </div>
 </template>
 
 <script setup>
 import { reactive, ref, computed, onMounted } from 'vue'
-
-
-const coinStore = useCoinStore()
-const gameWon = ref(false)
-const coins = ref(0)
-const rewardCoins = computed(() => {
-  return {
-    easy: 10,
-    medium: 50,
-    hard: 100
-  }[selectedDifficulty.value]
-})
 
 const difficulties = {
   easy: { rows: 8, cols: 8, mines: 10 },
@@ -94,7 +68,6 @@ const mineCount = computed(() => difficulties[selectedDifficulty.value].mines)
 function resetGame() {
   grid.length = 0
   gameOver.value = false
-  gameWon.value = false
   firstClickMade.value = false
 
   for (let i = 0; i < rows.value * cols.value; i++) {
@@ -126,7 +99,7 @@ function generateMines(safeCell) {
   const safeZone = new Set(
     getNeighbors(safeCell)
       .concat(safeCell)
-      .map((c) => c.y * cols.value + c.x),
+      .map(c => c.y * cols.value + c.x)
   )
 
   while (minesPlaced < mineCount.value) {
@@ -142,7 +115,7 @@ function calculateAdjacentMines() {
   for (const cell of grid) {
     if (cell.mine) continue
     const neighbors = getNeighbors(cell)
-    cell.adjacentMines = neighbors.filter((n) => n.mine).length
+    cell.adjacentMines = neighbors.filter(n => n.mine).length
   }
 }
 
@@ -162,7 +135,7 @@ function getNeighbors(cell) {
 }
 
 function revealCell(cell) {
-  if (cell.revealed || cell.flagged || gameOver.value || gameWon.value) return
+  if (cell.revealed || cell.flagged || gameOver.value) return
 
   cell.revealed = true
 
@@ -175,23 +148,10 @@ function revealCell(cell) {
   if (cell.adjacentMines === 0) {
     getNeighbors(cell).forEach(revealCell)
   }
-
-  checkWin()
-}
-
-function checkWin() {
-  const unrevealed = grid.filter(c => !c.revealed)
-  const onlyMinesLeft = unrevealed.every(c => c.mine)
-
-  if (onlyMinesLeft) {
-    gameWon.value = true
-    coinStore.add(rewardCoins.value)
-    revealAll()
-  }
 }
 
 function revealAll() {
-  grid.forEach((cell) => (cell.revealed = true))
+  grid.forEach(cell => (cell.revealed = true))
 }
 
 function toggleFlag(cell) {
@@ -215,7 +175,7 @@ onMounted(() => {
   width: 30px;
   height: 30px;
   border-radius: 6px;
-  background-color: #d1d5db; 
+  background-color: #d1d5db; /* gray-300 */
   display: flex;
   align-items: center;
   justify-content: center;
@@ -227,12 +187,12 @@ onMounted(() => {
 }
 
 .cell:hover {
-  background-color: #cbd5e1;
+  background-color: #cbd5e1; 
   transform: scale(1.05);
 }
 
 .bg-white {
-  background-color: #f9fafb !important;
+  background-color: #f9fafb !important; 
 }
 
 .bg-red-400 {
@@ -240,15 +200,14 @@ onMounted(() => {
   color: white;
 }
 
-/* Colors for numbers */
 .text-blue-700 {
-  color: #1d4ed8;
+  color: #1d4ed8; 
 }
 .text-green-700 {
-  color: #15803d;
+  color: #15803d; 
 }
 .text-red-700 {
-  color: #b91c1c;
+  color: #b91c1c; 
 }
 
 .cell span {
