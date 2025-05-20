@@ -3,6 +3,7 @@ import HomeView from '../views/HomeView.vue'
 import AboutView from '../views/AboutView.vue'
 import minesweeper from '@/views/minesweeper.vue'
 import { useAuthStore } from '@/stores/auth'
+import GachaView from '@/views/GachaView.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -23,6 +24,12 @@ const router = createRouter({
       path: '/minesweeper',
       name: 'minesweeper',
       component: minesweeper,
+      meta: { requiresAuth: true },
+    },
+    {
+      path: '/gacha',
+      name: 'gacha',
+      component: GachaView,
       meta: { requiresAuth: true },
     },
   ],
