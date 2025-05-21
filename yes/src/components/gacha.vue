@@ -20,7 +20,10 @@
         <button @click="tenPull" class="button-ten">10 Pull</button>
       </div>
 
-      <div v-if="results.length" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4">
+      <div
+        v-if="results.length"
+        class="flex flex-cols-2 sm:flex-cols-3 md:flex-cols-5 gap-4 w-full"
+      >
         <div
           v-for="(item, index) in results"
           :key="index"
