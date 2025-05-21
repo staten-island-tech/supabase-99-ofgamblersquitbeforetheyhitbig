@@ -20,7 +20,10 @@
         <button @click="tenPull" class="button-ten">10 Pull</button>
       </div>
 
-      <div v-if="results.length" class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+      <div
+        v-if="results.length"
+        class="flex flex-cols-2 sm:flex-cols-3 md:flex-cols-5 gap-4 w-full"
+      >
         <div
           v-for="(item, index) in results"
           :key="index"
@@ -46,14 +49,19 @@ const results = ref([])
 
 const rarityRates = {
   'Lebron James': 0.01,
-  'Korean': 0.1,
-  'Legendary': 1,
-  'Rare': 25,
-  'Common': 73.89
+  Korean: 0.1,
+  Legendary: 1,
+  Rare: 25,
+  Common: 73.89,
 }
 
 const gachaPool = [
-  { Name: 'Barney', Rarity: 'Rare', Desc: 'Barney is a dinosaur that haunts your imagination', Image: 'Barney.webp' },
+  {
+    Name: 'Barney',
+    Rarity: 'Rare',
+    Desc: 'Barney is a dinosaur that haunts your imagination',
+    Image: 'Barney.webp',
+  },
   { Name: 'Belle', Rarity: 'Korean', Desc: 'ryyan loves gooning', Image: 'Belle.jpg' },
   { Name: 'Bob', Rarity: 'Rare', Desc: 'licks you', Image: 'Bob.jpg' },
   { Name: 'Brude', Rarity: 'Common', Desc: 'mander', Image: 'Brude.jpg' },
@@ -76,8 +84,18 @@ const gachaPool = [
   { Name: 'Jungkook', Rarity: 'Korean', Desc: 'Standing next to you', Image: 'Jungkook.jpg' },
   { Name: 'Kanye', Rarity: 'Legendary', Desc: 'I love my cousin', Image: 'Kanye.jpg' },
   { Name: 'Keshi', Rarity: 'Common', Desc: 'Socal Asian moment', Image: 'Keshi.jpg' },
-  { Name: 'Kim Jong Un', Rarity: 'Korean', Desc: 'Top three Korea right here', Image: 'KimJongUn.jpg' },
-  { Name: 'LEBRON JAMES', Rarity: 'Lebron James', Desc: 'Dylan loves gooning', Image: 'Lebron.jpg' },
+  {
+    Name: 'Kim Jong Un',
+    Rarity: 'Korean',
+    Desc: 'Top three Korea right here',
+    Image: 'KimJongUn.jpg',
+  },
+  {
+    Name: 'LEBRON JAMES',
+    Rarity: 'Lebron James',
+    Desc: 'Dylan loves gooning',
+    Image: 'Lebron.jpg',
+  },
   { Name: 'Big Mac', Rarity: 'Common', Desc: 'Big back big back', Image: 'Mac.jpg' },
   { Name: 'McConner', Rarity: 'Common', Desc: 'Wsg gang', Image: 'McConner.jpg' },
   { Name: 'Minji', Rarity: 'Korean', Desc: 'Dylan loves gooning', Image: 'Minji.jpg' },
@@ -87,7 +105,6 @@ const gachaPool = [
   { Name: 'Vanilla', Rarity: 'Legendary', Desc: 'Dylan loves gooning', Image: 'Vanilla.webp' },
   { Name: 'Winter', Rarity: 'Korean', Desc: 'Dylan loves gooning', Image: 'Winter.webp' },
 ]
-
 
 function getRandomRarity() {
   const roll = Math.random() * 100
@@ -101,7 +118,7 @@ function getRandomRarity() {
 
 function pullOneCharacter() {
   const rarity = getRandomRarity()
-  const pool = gachaPool.filter(c => c.Rarity === rarity)
+  const pool = gachaPool.filter((c) => c.Rarity === rarity)
   return pool.length ? pool[Math.floor(Math.random() * pool.length)] : null
 }
 
@@ -121,23 +138,35 @@ function tenPull() {
 
 function rarityClass(rarity) {
   switch (rarity) {
-    case 'Lebron James': return 'border-lebron'
-    case 'Korean': return 'border-korean'
-    case 'Legendary': return 'border-legendary'
-    case 'Rare': return 'border-rare'
-    case 'Gooner': return 'border-gooner'
-    default: return 'border-common'
+    case 'Lebron James':
+      return 'border-lebron'
+    case 'Korean':
+      return 'border-korean'
+    case 'Legendary':
+      return 'border-legendary'
+    case 'Rare':
+      return 'border-rare'
+    case 'Gooner':
+      return 'border-gooner'
+    default:
+      return 'border-common'
   }
 }
 
 function getStars(rarity) {
   switch (rarity) {
-    case 'Lebron James': return 6
-    case 'Legendary': return 5
-    case 'Rare': return 4
-    case 'Gooner': return 3
-    case 'Korean': return 2
-    default: return 1
+    case 'Lebron James':
+      return 6
+    case 'Legendary':
+      return 5
+    case 'Rare':
+      return 4
+    case 'Gooner':
+      return 3
+    case 'Korean':
+      return 2
+    default:
+      return 1
   }
 }
 </script>
@@ -149,7 +178,7 @@ function getStars(rarity) {
   margin: auto;
   background-color: white;
   border-radius: 0.75rem;
-  box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
 }
 
 .title {
@@ -167,7 +196,8 @@ function getStars(rarity) {
   margin-bottom: 2rem;
 }
 
-.button-single, .button-ten {
+.button-single,
+.button-ten {
   padding: 0.5rem 1.5rem;
   font-weight: 600;
   border-radius: 0.5rem;
@@ -200,15 +230,17 @@ function getStars(rarity) {
   padding: 1rem;
   border: 3px solid transparent;
   border-radius: 1rem;
-  box-shadow: 0 10px 20px rgba(0,0,0,0.15);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
   background: linear-gradient(to bottom right, #ffffff, #f3f4f6);
-  transition: transform 0.2s, box-shadow 0.2s;
+  transition:
+    transform 0.2s,
+    box-shadow 0.2s;
   overflow: hidden;
 }
 
 .card:hover {
   transform: scale(1.03);
-  box-shadow: 0 15px 25px rgba(0,0,0,0.2);
+  box-shadow: 0 15px 25px rgba(0, 0, 0, 0.2);
 }
 
 .character-img {
@@ -217,7 +249,7 @@ function getStars(rarity) {
   object-fit: cover;
   border-radius: 9999px;
   border: 3px solid white;
-  box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   margin-bottom: 0.5rem;
 }
 
