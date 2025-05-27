@@ -40,7 +40,7 @@ export const useAuthStore = defineStore('auth', () => {
     const { data } = await supabase.auth.getUser()
     user.value = data.user
   }
-  
+
   const fetchUserData = async () => {
     if (!user.value) return
     const { data, error: err } = await supabase
@@ -60,7 +60,7 @@ export const useAuthStore = defineStore('auth', () => {
     const newCoinTotal = (user.value.coins || 0) + amount
 
     const { error: err } = await supabase
-      .from('profiles')
+      .from('users')
       .update({ coins: newCoinTotal })
       .eq('id', user.value.id)
 
