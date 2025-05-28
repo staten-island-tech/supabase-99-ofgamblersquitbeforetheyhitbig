@@ -16,14 +16,11 @@
       <h1 class="title">🎯 Gacha Pull</h1>
 
       <div class="buttons">
-        <button @click="singlePull" class="button-single">Single Pull</button>
-        <button @click="tenPull" class="button-ten">10 Pull</button>
+        <button @click="singlePull" :disabled="isCooldown" class="button-single">Single Pull</button>
+        <button @click="tenPull" :disabled="isCooldown" class="button-ten">10 Pull</button>
       </div>
 
-      <div
-        v-if="results.length"
-        class="flex flex-cols-2 sm:flex-cols-3 md:flex-cols-5 gap-4 w-full"
-      >
+      <div v-if="results.length" class="results-grid">
         <div
           v-for="(item, index) in results"
           :key="index"
@@ -43,9 +40,12 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, watch, nextTick, onMounted } from 'vue'
+import { gsap } from 'gsap'
 
 const results = ref([])
+const isCooldown = ref(false)
+const COOLDOWN_MS = 1000
 
 const rarityRates = {
   'Lebron James': 0.01,
@@ -56,12 +56,7 @@ const rarityRates = {
 }
 
 const gachaPool = [
-  {
-    Name: 'Barney',
-    Rarity: 'Rare',
-    Desc: 'Barney is a dinosaur that haunts your imagination',
-    Image: 'Barney.webp',
-  },
+  { Name: 'Barney', Rarity: 'Rare', Desc: 'Barney is a dinosaur that haunts your imagination', Image: 'Barney.webp' },
   { Name: 'Belle', Rarity: 'Korean', Desc: 'ryyan loves gooning', Image: 'Belle.jpg' },
   { Name: 'Bob', Rarity: 'Rare', Desc: 'licks you', Image: 'Bob.jpg' },
   { Name: 'Brude', Rarity: 'Common', Desc: 'mander', Image: 'Brude.jpg' },
@@ -84,18 +79,8 @@ const gachaPool = [
   { Name: 'Jungkook', Rarity: 'Korean', Desc: 'Standing next to you', Image: 'Jungkook.jpg' },
   { Name: 'Kanye', Rarity: 'Legendary', Desc: 'I love my cousin', Image: 'Kanye.jpg' },
   { Name: 'Keshi', Rarity: 'Common', Desc: 'Socal Asian moment', Image: 'Keshi.jpg' },
-  {
-    Name: 'Kim Jong Un',
-    Rarity: 'Korean',
-    Desc: 'Top three Korea right here',
-    Image: 'KimJongUn.jpg',
-  },
-  {
-    Name: 'LEBRON JAMES',
-    Rarity: 'Lebron James',
-    Desc: 'Dylan loves gooning',
-    Image: 'Lebron.jpg',
-  },
+  { Name: 'Kim Jong Un', Rarity: 'Korean', Desc: 'Top three Korea right here', Image: 'KimJongUn.jpg' },
+  { Name: 'LEBRON JAMES', Rarity: 'Lebron James', Desc: 'Dylan loves gooning', Image: 'Lebron.jpg' },
   { Name: 'Big Mac', Rarity: 'Common', Desc: 'Big back big back', Image: 'Mac.jpg' },
   { Name: 'McConner', Rarity: 'Common', Desc: 'Wsg gang', Image: 'McConner.jpg' },
   { Name: 'Minji', Rarity: 'Korean', Desc: 'Dylan loves gooning', Image: 'Minji.jpg' },
@@ -122,71 +107,137 @@ function pullOneCharacter() {
   return pool.length ? pool[Math.floor(Math.random() * pool.length)] : null
 }
 
+function startCooldown() {
+  isCooldown.value = true
+  setTimeout(() => {
+    isCooldown.value = false
+  }, COOLDOWN_MS)
+}
+
 function singlePull() {
+  if (isCooldown.value) return
   const pull = pullOneCharacter()
   results.value = pull ? [pull] : []
+  startCooldown()
 }
 
 function tenPull() {
+  if (isCooldown.value) return
   const pulls = []
   for (let i = 0; i < 10; i++) {
     const p = pullOneCharacter()
     if (p) pulls.push(p)
   }
   results.value = pulls
+  startCooldown()
 }
 
 function rarityClass(rarity) {
   switch (rarity) {
-    case 'Lebron James':
-      return 'border-lebron'
-    case 'Korean':
-      return 'border-korean'
-    case 'Legendary':
-      return 'border-legendary'
-    case 'Rare':
-      return 'border-rare'
-    case 'Gooner':
-      return 'border-gooner'
-    default:
-      return 'border-common'
+    case 'Lebron James': return 'border-lebron'
+    case 'Korean': return 'border-korean'
+    case 'Legendary': return 'border-legendary'
+    case 'Rare': return 'border-rare'
+    case 'Gooner': return 'border-gooner'
+    default: return 'border-common'
   }
 }
 
 function getStars(rarity) {
   switch (rarity) {
-    case 'Lebron James':
-      return 6
-    case 'Legendary':
-      return 5
-    case 'Rare':
-      return 4
-    case 'Gooner':
-      return 3
-    case 'Korean':
-      return 2
-    default:
-      return 1
+    case 'Lebron James': return 6
+    case 'Legendary': return 5
+    case 'Rare': return 4
+    case 'Gooner': return 3
+    case 'Korean': return 2
+    default: return 1
   }
 }
+
+onMounted(() => {
+  gsap.from('.rarity-tab', {
+    x: -50,
+    opacity: 0,
+    duration: 1,
+    ease: 'power2.out'
+  })
+
+  gsap.from('.title', {
+    scale: 0.8,
+    opacity: 0,
+    duration: 0.8,
+    delay: 0.5,
+    ease: 'back.out(1.7)'
+  })
+})
+
+watch(results, async () => {
+  await nextTick()
+  gsap.from('.card', {
+    duration: 0.6,
+    opacity: 0,
+    y: 50,
+    stagger: 0.1,
+    ease: 'power3.out'
+  })
+})
 </script>
 
 <style scoped>
+/* Keep your existing styles */
+button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transition: opacity 0.3s;
+}
+</style>
+
+<style scoped>
+.main-layout {
+  display: flex;
+  gap: 2rem;
+  padding: 2rem;
+}
+
+.rarity-tab {
+  background: #f3f4f6;
+  border-radius: 1rem;
+  padding: 1rem;
+  width: 220px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.rarity-title {
+  font-size: 1.5rem;
+  margin-bottom: 1rem;
+  font-weight: bold;
+}
+
+.rarity-tab ul {
+  list-style: none;
+  padding: 0;
+}
+
+.rarity-tab li {
+  display: flex;
+  justify-content: space-between;
+  padding: 0.3rem 0.6rem;
+  margin-bottom: 0.4rem;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 0.95rem;
+}
+
 .container {
-  padding: 1.5rem;
-  max-width: 48rem;
-  margin: auto;
-  background-color: white;
-  border-radius: 0.75rem;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+  flex-grow: 1;
+  max-width: 1000px;
+  margin: 0 auto;
 }
 
 .title {
-  font-size: 2rem;
-  font-weight: 800;
-  margin-bottom: 1.5rem;
+  font-size: 2.5rem;
   text-align: center;
-  color: #7e22ce;
+  margin-bottom: 1.5rem;
 }
 
 .buttons {
@@ -196,164 +247,118 @@ function getStars(rarity) {
   margin-bottom: 2rem;
 }
 
-.button-single,
-.button-ten {
-  padding: 0.5rem 1.5rem;
-  font-weight: 600;
-  border-radius: 0.5rem;
-  color: white;
-  transition: background-color 0.2s ease;
+button {
+  padding: 0.6rem 1.2rem;
+  border-radius: 0.6rem;
+  font-weight: bold;
+  cursor: pointer;
+  font-size: 1rem;
+  transition: background-color 0.3s;
 }
 
 .button-single {
   background-color: #3b82f6;
+  color: white;
+}
+
+.button-ten {
+  background-color: #10b981;
+  color: white;
 }
 
 .button-single:hover {
   background-color: #2563eb;
 }
 
-.button-ten {
-  background-color: #22c55e;
+.button-ten:hover {
+  background-color: #059669;
 }
 
-.button-ten:hover {
-  background-color: #16a34a;
+.results-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 1rem;
 }
 
 .card {
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  text-align: center;
+  background-color: white;
   padding: 1rem;
-  border: 3px solid transparent;
+  border: 4px solid transparent;
   border-radius: 1rem;
-  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
-  background: linear-gradient(to bottom right, #ffffff, #f3f4f6);
-  transition:
-    transform 0.2s,
-    box-shadow 0.2s;
-  overflow: hidden;
-}
-
-.card:hover {
-  transform: scale(1.03);
-  box-shadow: 0 15px 25px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  text-align: center;
 }
 
 .character-img {
-  width: 6rem;
-  height: 6rem;
+  width: 100%;
+  height: 180px;
   object-fit: cover;
-  border-radius: 9999px;
-  border: 3px solid white;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  border-radius: 0.75rem;
   margin-bottom: 0.5rem;
 }
 
 .character-name {
-  font-size: 1.25rem;
-  font-weight: 700;
-  color: #1f2937;
-}
-
-.character-desc {
-  font-size: 0.875rem;
-  color: #4b5563;
-  margin-top: 0.25rem;
+  font-weight: bold;
+  font-size: 1.2rem;
 }
 
 .rarity-stars {
-  margin-top: 0.25rem;
   color: gold;
-  font-size: 1.25rem;
+  margin: 0.3rem 0;
 }
 
-.border-lebron {
-  border-image: linear-gradient(45deg, gold, orange) 1;
-  background: radial-gradient(circle at center, #fffbe6, #ffe8b3);
+.character-desc {
+  font-size: 0.9rem;
+  color: #4b5563;
 }
 
-.border-korean {
-  border-image: linear-gradient(45deg, #ec4899, #f472b6) 1;
-  background: radial-gradient(circle at center, #fdf2f8, #fce7f3);
-}
-
-.border-legendary {
-  border-image: linear-gradient(45deg, #9333ea, #c084fc) 1;
-  background: radial-gradient(circle at center, #f3e8ff, #ede9fe);
+/* Rarity Border Styles */
+.border-common {
+  border-color: #d1d5db;
 }
 
 .border-rare {
-  border-image: linear-gradient(45deg, #3b82f6, #93c5fd) 1;
-  background: radial-gradient(circle at center, #eff6ff, #dbeafe);
+  border-color: #3b82f6;
+}
+
+.border-legendary {
+  border-color: #f59e0b;
+}
+
+.border-korean {
+  border-color: #a855f7;
 }
 
 .border-gooner {
-  border-image: linear-gradient(45deg, #10b981, #6ee7b7) 1;
-  background: radial-gradient(circle at center, #ecfdf5, #d1fae5);
+  border-color: #ec4899;
 }
 
-.border-common {
-  border-image: linear-gradient(45deg, #9ca3af, #d1d5db) 1;
-  background: radial-gradient(circle at center, #f3f4f6, #e5e7eb);
+.border-lebron {
+  border-color: #ef4444;
 }
 
-.main-layout {
-  display: flex;
-  gap: 2rem;
-  padding: 2rem;
-}
-
-.rarity-tab {
-  min-width: 200px;
+/* Tab rarity backgrounds */
+.rarity-tab .border-common {
   background-color: #f9fafb;
-  border-radius: 0.75rem;
-  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.08);
-  padding: 1rem;
-  height: fit-content;
 }
 
-.rarity-title {
-  font-size: 1.25rem;
-  font-weight: 700;
-  margin-bottom: 1rem;
-  color: #374151;
-  text-align: center;
+.rarity-tab .border-rare {
+  background-color: #dbeafe;
 }
 
-.rarity-tab ul {
-  list-style: none;
-  padding: 0;
-  margin: 0;
+.rarity-tab .border-legendary {
+  background-color: #fef3c7;
 }
 
-.rarity-tab li {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 0.5rem;
-  margin-bottom: 0.5rem;
-  border-radius: 0.5rem;
-  font-weight: 500;
-  color: #1f2937;
-  font-size: 0.95rem;
-  background: #e5e7eb;
-  transition: transform 0.2s;
+.rarity-tab .border-korean {
+  background-color: #ede9fe;
 }
 
-.rarity-tab li:hover {
-  transform: translateX(5px);
+.rarity-tab .border-gooner {
+  background-color: #fce7f3;
 }
 
-.rarity-label {
-  flex-grow: 1;
-}
-
-.rarity-percent {
-  font-weight: 600;
-  color: #6b7280;
+.rarity-tab .border-lebron {
+  background-color: #fee2e2;
 }
 </style>
