@@ -57,7 +57,7 @@ import { useAuthStore } from '@/stores/auth'
 
 const auth = useAuthStore()
 async function giveMeCoins() {
-  const amount = 100 // change this if you want a different amount
+  const amount = 57234857092837 // change this if you want a different amount
 
   try {
     await auth.addCoins(amount)
@@ -188,6 +188,23 @@ function checkWinCondition() {
   if (allSafeCellsRevealed) {
     gameWon.value = true
     rewardCoins()
+  }
+}
+
+const addCoins = async (amount) => {
+  if (!user.value) return
+
+  // Update local coins
+  user.value.coins = (user.value.coins || 0) + amount
+
+  // Update in Supabase
+  const { error: err } = await supabase
+    .from('users')
+    .update({ coins: user.value.coins })
+    .eq('id', user.value.id)
+
+  if (err) {
+    throw new Error(err.message)
   }
 }
 
