@@ -1,10 +1,6 @@
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
 import { supabase } from '@/lib/supabase'
-const fetchUser = async () => {
-  const { data } = await supabase.auth.getUser()
-  user.value = data.user
-}
 
 export const useAuthStore = defineStore('auth', () => {
   const user = ref(null)
@@ -40,32 +36,18 @@ export const useAuthStore = defineStore('auth', () => {
     const { data } = await supabase.auth.getUser()
     user.value = data.user
   }
-  
+
   const fetchUserData = async () => {
     if (!user.value) return
+
     const { data, error: err } = await supabase
-      .from('profiles') // assuming you have a 'profiles' table
+      .from('users') // assuming your table is 'users'
       .select('coins')
       .eq('id', user.value.id)
       .single()
 
-    if (!err) {
+    if (!err && data) {
       user.value.coins = data.coins || 0
-    }
-  }
-
-  const addCoins = async (amount) => {
-    if (!user.value) return
-
-    const newCoinTotal = (user.value.coins || 0) + amount
-
-    const { error: err } = await supabase
-      .from('profiles')
-      .update({ coins: newCoinTotal })
-      .eq('id', user.value.id)
-
-    if (!err) {
-      user.value.coins = newCoinTotal
     }
   }
 
@@ -77,6 +59,6 @@ export const useAuthStore = defineStore('auth', () => {
     signUp,
     signOut,
     fetchUser,
-    addCoins,
+    fetchUserData,
   }
 })

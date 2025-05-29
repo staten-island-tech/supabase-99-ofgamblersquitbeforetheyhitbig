@@ -8,12 +8,15 @@
         <option value="hard">Hard (14x14, 25 mines)</option>
       </select>
     </div>
-
-    <div
-      class="grid"
-:style="{ gridTemplateColumns: 'repeat(' + cols + ', 30px)' }"
-      
-    >
+    <div class="text-center">
+      <button
+        @click="giveMeCoins"
+        class="mt-2 bg-yellow-500 hover:bg-yellow-600 text-white px-4 py-2 rounded shadow"
+      >
+        💰 Give Me Coins
+      </button>
+    </div>
+    <div class="grid" :style="{ gridTemplateColumns: 'repeat(' + cols + ', 30px)' }">
       <div
         v-for="(cell, index) in grid"
         :key="index"
@@ -28,18 +31,19 @@
             'text-blue-700': cell.revealed && cell.adjacentMines === 1,
             'text-green-700': cell.revealed && cell.adjacentMines === 2,
             'text-red-700': cell.revealed && cell.adjacentMines >= 3,
-          }
+          },
         ]"
       >
         <span v-if="cell.flagged && !cell.revealed">🚩</span>
         <span v-else-if="cell.revealed">
-          {{ cell.mine ? "💣" : cell.adjacentMines || '' }}
+          {{ cell.mine ? '💣' : cell.adjacentMines || '' }}
         </span>
       </div>
     </div>
 
-    <div v-if="gameOver" class="mt-4 text-center">
-      <p class="text-lg font-semibold text-red-600 mb-2">💥 Game Over!</p>
+    <div v-if="gameOver || gameWon" class="mt-4 text-center">
+      <p v-if="gameOver" class="text-lg font-semibold text-red-600 mb-2">💥 Game Over!</p>
+      <p v-if="gameWon" class="text-lg font-semibold text-green-600 mb-2">🎉 You Won!</p>
       <button @click="resetGame" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
         Restart Game
       </button>
@@ -49,6 +53,10 @@
 
 <script setup>
 import { reactive, ref, computed, onMounted } from 'vue'
+import { useAuthStore } from '@/stores/auth'
+import { supabase } from '@/lib/supabase'
+
+const auth = useAuthStore()
 
 const difficulties = {
   easy: { rows: 8, cols: 8, mines: 10 },
@@ -59,6 +67,7 @@ const difficulties = {
 const selectedDifficulty = ref('medium')
 const grid = reactive([])
 const gameOver = ref(false)
+const gameWon = ref(false)
 const firstClickMade = ref(false)
 
 const rows = computed(() => difficulties[selectedDifficulty.value].rows)
@@ -68,6 +77,7 @@ const mineCount = computed(() => difficulties[selectedDifficulty.value].mines)
 function resetGame() {
   grid.length = 0
   gameOver.value = false
+  gameWon.value = false
   firstClickMade.value = false
 
   for (let i = 0; i < rows.value * cols.value; i++) {
@@ -83,7 +93,7 @@ function resetGame() {
 }
 
 function handleFirstClick(cell) {
-  if (gameOver.value || cell.revealed || cell.flagged) return
+  if (gameOver.value || gameWon.value || cell.revealed || cell.flagged) return
 
   if (!firstClickMade.value) {
     generateMines(cell)
@@ -99,7 +109,7 @@ function generateMines(safeCell) {
   const safeZone = new Set(
     getNeighbors(safeCell)
       .concat(safeCell)
-      .map(c => c.y * cols.value + c.x)
+      .map((c) => c.y * cols.value + c.x),
   )
 
   while (minesPlaced < mineCount.value) {
@@ -115,7 +125,7 @@ function calculateAdjacentMines() {
   for (const cell of grid) {
     if (cell.mine) continue
     const neighbors = getNeighbors(cell)
-    cell.adjacentMines = neighbors.filter(n => n.mine).length
+    cell.adjacentMines = neighbors.filter((n) => n.mine).length
   }
 }
 
@@ -135,7 +145,7 @@ function getNeighbors(cell) {
 }
 
 function revealCell(cell) {
-  if (cell.revealed || cell.flagged || gameOver.value) return
+  if (cell.revealed || cell.flagged || gameOver.value || gameWon.value) return
 
   cell.revealed = true
 
@@ -148,18 +158,73 @@ function revealCell(cell) {
   if (cell.adjacentMines === 0) {
     getNeighbors(cell).forEach(revealCell)
   }
+
+  checkWinCondition()
 }
 
 function revealAll() {
-  grid.forEach(cell => (cell.revealed = true))
+  grid.forEach((cell) => (cell.revealed = true))
 }
 
 function toggleFlag(cell) {
-  if (cell.revealed || gameOver.value) return
+  if (cell.revealed || gameOver.value || gameWon.value) return
   cell.flagged = !cell.flagged
 }
 
+function checkWinCondition() {
+  const allSafeCellsRevealed = grid.every((cell) => cell.mine || cell.revealed)
+
+  if (allSafeCellsRevealed) {
+    gameWon.value = true
+    rewardCoins()
+  }
+}
+
+const addCoins = async (amount) => {
+  if (!auth.user) return
+
+  const currentCoins = auth.user.coins || 0
+  const newCoins = currentCoins + amount
+
+  const { error } = await supabase
+    .from('users') // Use 'users' if your coins are stored there
+    .update({ coins: newCoins })
+    .eq('id', auth.user.id)
+
+  if (error) throw new Error(error.message)
+
+  auth.user.coins = newCoins
+}
+
+async function rewardCoins() {
+  const rewards = {
+    easy: 10,
+    medium: 25,
+    hard: 50,
+  }
+  const reward = rewards[selectedDifficulty.value] || 0
+
+  try {
+    await addCoins(reward)
+    console.log(`You earned ${reward} coins! Total: ${auth.user.coins}`)
+  } catch (e) {
+    console.error('Coin reward failed:', e)
+  }
+}
+
+async function giveMeCoins() {
+  const amount = 1000000 // arbitrary test amount
+  try {
+    await addCoins(amount)
+    console.log(`Gave you ${amount} coins. Total: ${auth.user.coins}`)
+  } catch (e) {
+    console.error('Failed to give coins:', e)
+  }
+}
+
 onMounted(() => {
+  auth.fetchUser()
+  auth.fetchUserData()
   resetGame()
 })
 </script>
@@ -175,7 +240,7 @@ onMounted(() => {
   width: 30px;
   height: 30px;
   border-radius: 6px;
-  background-color: #d1d5db; /* gray-300 */
+  background-color: #d1d5db;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -183,16 +248,18 @@ onMounted(() => {
   font-size: 0.875rem;
   cursor: pointer;
   user-select: none;
-  transition: background-color 0.2s, transform 0.1s;
+  transition:
+    background-color 0.2s,
+    transform 0.1s;
 }
 
 .cell:hover {
-  background-color: #cbd5e1; 
+  background-color: #cbd5e1;
   transform: scale(1.05);
 }
 
 .bg-white {
-  background-color: #f9fafb !important; 
+  background-color: #f9fafb !important;
 }
 
 .bg-red-400 {
@@ -201,13 +268,13 @@ onMounted(() => {
 }
 
 .text-blue-700 {
-  color: #1d4ed8; 
+  color: #1d4ed8;
 }
 .text-green-700 {
-  color: #15803d; 
+  color: #15803d;
 }
 .text-red-700 {
-  color: #b91c1c; 
+  color: #b91c1c;
 }
 
 .cell span {
