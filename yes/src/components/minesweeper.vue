@@ -54,18 +54,9 @@
 <script setup>
 import { reactive, ref, computed, onMounted } from 'vue'
 import { useAuthStore } from '@/stores/auth'
+import { supabase } from '@/lib/supabase'
 
 const auth = useAuthStore()
-async function giveMeCoins() {
-  const amount = 57234857092837 // change this if you want a different amount
-
-  try {
-    await auth.addCoins(amount)
-    console.log(`Gave you ${amount} coins. Total: ${auth.user.coins}`)
-  } catch (e) {
-    console.error('Failed to give coins:', e)
-  }
-}
 
 const difficulties = {
   easy: { rows: 8, cols: 8, mines: 10 },
@@ -181,9 +172,7 @@ function toggleFlag(cell) {
 }
 
 function checkWinCondition() {
-  const allSafeCellsRevealed = grid.every((cell) => {
-    return cell.mine || cell.revealed
-  })
+  const allSafeCellsRevealed = grid.every((cell) => cell.mine || cell.revealed)
 
   if (allSafeCellsRevealed) {
     gameWon.value = true
@@ -192,20 +181,19 @@ function checkWinCondition() {
 }
 
 const addCoins = async (amount) => {
-  if (!user.value) return
+  if (!auth.user) return
 
-  // Update local coins
-  user.value.coins = (user.value.coins || 0) + amount
+  const currentCoins = auth.user.coins || 0
+  const newCoins = currentCoins + amount
 
-  // Update in Supabase
-  const { error: err } = await supabase
-    .from('users')
-    .update({ coins: user.value.coins })
-    .eq('id', user.value.id)
+  const { error } = await supabase
+    .from('users') // Use 'users' if your coins are stored there
+    .update({ coins: newCoins })
+    .eq('id', auth.user.id)
 
-  if (err) {
-    throw new Error(err.message)
-  }
+  if (error) throw new Error(error.message)
+
+  auth.user.coins = newCoins
 }
 
 async function rewardCoins() {
@@ -214,18 +202,29 @@ async function rewardCoins() {
     medium: 25,
     hard: 50,
   }
-
   const reward = rewards[selectedDifficulty.value] || 0
 
   try {
-    await auth.addCoins(reward)
+    await addCoins(reward)
     console.log(`You earned ${reward} coins! Total: ${auth.user.coins}`)
   } catch (e) {
     console.error('Coin reward failed:', e)
   }
 }
 
+async function giveMeCoins() {
+  const amount = 1000000 // arbitrary test amount
+  try {
+    await addCoins(amount)
+    console.log(`Gave you ${amount} coins. Total: ${auth.user.coins}`)
+  } catch (e) {
+    console.error('Failed to give coins:', e)
+  }
+}
+
 onMounted(() => {
+  auth.fetchUser()
+  auth.fetchUserData()
   resetGame()
 })
 </script>
