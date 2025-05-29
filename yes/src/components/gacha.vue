@@ -11,7 +11,7 @@
     </aside>
 
     <div class="container">
-      <h1 class="title">🎯 Gacha Pull</h1>
+      <h1 class="title">Vrown Dong Establishment</h1>
 
       <div class="buttons">
         <button @click="singlePull" :disabled="isCooldown" class="button-single">Single Pull</button>
@@ -43,7 +43,7 @@ import { gsap } from 'gsap'
 
 const results = ref([])
 const isCooldown = ref(false)
-const COOLDOWN_MS = 1000
+const COOLDOWN_MS = 1500
 
 const rarityRates = {
   'Lebron James': 0.01,
