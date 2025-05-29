@@ -1,6 +1,5 @@
 <template>
   <div class="main-layout">
-    <!-- Side Tab for Rarity Rates -->
     <aside class="rarity-tab">
       <h2 class="rarity-title">Rarity Rates</h2>
       <ul>
@@ -11,7 +10,6 @@
       </ul>
     </aside>
 
-    <!-- Main Gacha Content -->
     <div class="container">
       <h1 class="title">🎯 Gacha Pull</h1>
 
@@ -184,7 +182,6 @@ watch(results, async () => {
 </script>
 
 <style scoped>
-/* Keep your existing styles */
 button:disabled {
   opacity: 0.6;
   cursor: not-allowed;
@@ -312,7 +309,6 @@ button {
   color: #4b5563;
 }
 
-/* Rarity Border Styles */
 .border-common {
   border-color: #d1d5db;
 }
@@ -337,7 +333,6 @@ button {
   border-color: #ef4444;
 }
 
-/* Tab rarity backgrounds */
 .rarity-tab .border-common {
   background-color: #f9fafb;
 }
