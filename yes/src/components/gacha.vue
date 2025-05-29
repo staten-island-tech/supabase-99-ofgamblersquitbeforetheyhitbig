@@ -2,7 +2,10 @@
   <div class="main-layout">
     <aside class="rarity-tab">
       <h2 class="rarity-title">Rarity Rates</h2>
-      <ul>
+      <button @click="showRarityList = !showRarityList" class="toggle-rarity">
+        {{ showRarityList ? 'Hide' : 'Show' }} Rarity Rates
+      </button>
+      <ul v-if="showRarityList">
         <li v-for="(rate, rarity) in rarityRates" :key="rarity" :class="rarityClass(rarity)">
           <span class="rarity-label">{{ rarity }}</span>
           <span class="rarity-percent">{{ rate }}%</span>
@@ -43,6 +46,7 @@ import { gsap } from 'gsap'
 
 const results = ref([])
 const isCooldown = ref(false)
+const showRarityList = ref(true)
 const COOLDOWN_MS = 1500
 
 const rarityRates = {
@@ -182,14 +186,6 @@ watch(results, async () => {
 </script>
 
 <style scoped>
-button:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-  transition: opacity 0.3s;
-}
-</style>
-
-<style scoped>
 .main-layout {
   display: flex;
   gap: 2rem;
@@ -208,6 +204,23 @@ button:disabled {
   font-size: 1.5rem;
   margin-bottom: 1rem;
   font-weight: bold;
+}
+
+.toggle-rarity {
+  display: block;
+  margin: 0 auto 1rem auto;
+  padding: 0.4rem 0.8rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+  background-color: #e5e7eb;
+  border: none;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.toggle-rarity:hover {
+  background-color: #d1d5db;
 }
 
 .rarity-tab ul {
@@ -251,6 +264,12 @@ button {
   cursor: pointer;
   font-size: 1rem;
   transition: background-color 0.3s;
+}
+
+button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transition: opacity 0.3s;
 }
 
 .button-single {
@@ -344,6 +363,7 @@ button {
 .rarity-tab .border-legendary {
   background-color: #fef3c7;
 }
+
 
 .rarity-tab .border-korean {
   background-color: #ede9fe;
