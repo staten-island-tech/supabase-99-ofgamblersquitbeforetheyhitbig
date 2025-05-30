@@ -140,7 +140,6 @@ function rarityClass(rarity) {
     case 'Korean': return 'border-korean'
     case 'Legendary': return 'border-legendary'
     case 'Rare': return 'border-rare'
-    case 'Gooner': return 'border-gooner'
     default: return 'border-common'
   }
 }
@@ -148,11 +147,10 @@ function rarityClass(rarity) {
 function getStars(rarity) {
   switch (rarity) {
     case 'Lebron James': return 6
-    case 'Legendary': return 5
-    case 'Rare': return 4
-    case 'Gooner': return 3
-    case 'Korean': return 2
-    default: return 1
+    case 'Legendary': return 4
+    case 'Rare': return 3
+    case 'Korean': return 5
+    default: return 2
   }
 }
 
