@@ -2,10 +2,7 @@
   <div class="main-layout">
     <aside class="rarity-tab">
       <h2 class="rarity-title">Rarity Rates</h2>
-      <button @click="showRarityList = !showRarityList" class="toggle-rarity">
-        {{ showRarityList ? 'Hide' : 'Show' }} Rarity Rates
-      </button>
-      <ul v-if="showRarityList">
+      <ul>
         <li v-for="(rate, rarity) in rarityRates" :key="rarity" :class="rarityClass(rarity)">
           <span class="rarity-label">{{ rarity }}</span>
           <span class="rarity-percent">{{ rate }}%</span>
@@ -14,11 +11,16 @@
     </aside>
 
     <div class="container">
-      <h1 class="title">Vrown Dong Establishment</h1>
+      <h1 class="title">Dylans Special Goon</h1>
+      <p class="coin-count">Coins: {{ coins }}</p>
 
       <div class="buttons">
-        <button @click="singlePull" :disabled="isCooldown" class="button-single">Single Pull</button>
-        <button @click="tenPull" :disabled="isCooldown" class="button-ten">10 Pull</button>
+        <button @click="singlePull" :disabled="isCooldown || coins < 10" class="button-single">
+          Single Pull (10 coins)
+        </button>
+        <button @click="tenPull" :disabled="isCooldown || coins < 100" class="button-ten">
+          10 Pull (100 coins)
+        </button>
       </div>
 
       <div v-if="results.length" class="results-grid">
@@ -43,11 +45,55 @@
 <script setup>
 import { ref, watch, nextTick, onMounted } from 'vue'
 import { gsap } from 'gsap'
+import { useAuthStore } from '@/stores/auth'
+import { supabase } from '@/lib/supabase'
+
+const auth = useAuthStore()
 
 const results = ref([])
 const isCooldown = ref(false)
-const showRarityList = ref(true)
 const COOLDOWN_MS = 1500
+
+const coins = ref(0)
+
+async function fetchCoins() {
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+  if (!user) return
+
+  const { data, error } = await supabase
+    .from('users') // or your table name
+    .select('coins')
+    .eq('id', auth.user.id) // adjust column name if different
+    .single()
+
+  if (error) {
+    console.error('Error fetching coins:', error)
+  } else {
+    coins.value = data.coins ?? 0
+  }
+}
+
+onMounted(() => {
+  fetchCoins()
+})
+
+async function updateCoinsInDB() {
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+  if (!user) return
+
+  const { error } = await supabase
+    .from('users')
+    .update({ coins: coins.value })
+    .eq('id', auth.user.id)
+
+  if (error) {
+    console.error('Error updating coins:', error)
+  }
+}
 
 const rarityRates = {
   'Lebron James': 0.01,
@@ -58,7 +104,12 @@ const rarityRates = {
 }
 
 const gachaPool = [
-  { Name: 'Barney', Rarity: 'Rare', Desc: 'Barney is a dinosaur that haunts your imagination', Image: 'Barney.webp' },
+  {
+    Name: 'Barney',
+    Rarity: 'Rare',
+    Desc: 'Barney is a dinosaur that haunts your imagination',
+    Image: 'Barney.webp',
+  },
   { Name: 'Belle', Rarity: 'Korean', Desc: 'ryyan loves gooning', Image: 'Belle.jpg' },
   { Name: 'Bob', Rarity: 'Rare', Desc: 'licks you', Image: 'Bob.jpg' },
   { Name: 'Brude', Rarity: 'Common', Desc: 'mander', Image: 'Brude.jpg' },
@@ -81,8 +132,18 @@ const gachaPool = [
   { Name: 'Jungkook', Rarity: 'Korean', Desc: 'Standing next to you', Image: 'Jungkook.jpg' },
   { Name: 'Kanye', Rarity: 'Legendary', Desc: 'I love my cousin', Image: 'Kanye.jpg' },
   { Name: 'Keshi', Rarity: 'Common', Desc: 'Socal Asian moment', Image: 'Keshi.jpg' },
-  { Name: 'Kim Jong Un', Rarity: 'Korean', Desc: 'Top three Korea right here', Image: 'KimJongUn.jpg' },
-  { Name: 'LEBRON JAMES', Rarity: 'Lebron James', Desc: 'Dylan loves gooning', Image: 'Lebron.jpg' },
+  {
+    Name: 'Kim Jong Un',
+    Rarity: 'Korean',
+    Desc: 'Top three Korea right here',
+    Image: 'KimJongUn.jpg',
+  },
+  {
+    Name: 'LEBRON JAMES',
+    Rarity: 'Lebron James',
+    Desc: 'Dylan loves gooning',
+    Image: 'Lebron.jpg',
+  },
   { Name: 'Big Mac', Rarity: 'Common', Desc: 'Big back big back', Image: 'Mac.jpg' },
   { Name: 'McConner', Rarity: 'Common', Desc: 'Wsg gang', Image: 'McConner.jpg' },
   { Name: 'Minji', Rarity: 'Korean', Desc: 'Dylan loves gooning', Image: 'Minji.jpg' },
@@ -116,41 +177,58 @@ function startCooldown() {
   }, COOLDOWN_MS)
 }
 
-function singlePull() {
-  if (isCooldown.value) return
+async function singlePull() {
+  if (isCooldown.value || coins.value < 10) return
+  coins.value -= 10
   const pull = pullOneCharacter()
   results.value = pull ? [pull] : []
+  await updateCoinsInDB() // ✅ Sync with Supabase
   startCooldown()
 }
-
-function tenPull() {
-  if (isCooldown.value) return
+async function tenPull() {
+  if (isCooldown.value || coins.value < 100) return
+  coins.value -= 100
   const pulls = []
   for (let i = 0; i < 10; i++) {
     const p = pullOneCharacter()
     if (p) pulls.push(p)
   }
   results.value = pulls
+  await updateCoinsInDB() // ✅ Sync with Supabase
   startCooldown()
 }
 
 function rarityClass(rarity) {
   switch (rarity) {
-    case 'Lebron James': return 'border-lebron'
-    case 'Korean': return 'border-korean'
-    case 'Legendary': return 'border-legendary'
-    case 'Rare': return 'border-rare'
-    default: return 'border-common'
+    case 'Lebron James':
+      return 'border-lebron'
+    case 'Korean':
+      return 'border-korean'
+    case 'Legendary':
+      return 'border-legendary'
+    case 'Rare':
+      return 'border-rare'
+    case 'Gooner':
+      return 'border-gooner'
+    default:
+      return 'border-common'
   }
 }
 
 function getStars(rarity) {
   switch (rarity) {
-    case 'Lebron James': return 6
-    case 'Legendary': return 4
-    case 'Rare': return 3
-    case 'Korean': return 5
-    default: return 2
+    case 'Lebron James':
+      return 6
+    case 'Legendary':
+      return 5
+    case 'Rare':
+      return 4
+    case 'Gooner':
+      return 3
+    case 'Korean':
+      return 2
+    default:
+      return 1
   }
 }
 
@@ -159,7 +237,7 @@ onMounted(() => {
     x: -50,
     opacity: 0,
     duration: 1,
-    ease: 'power2.out'
+    ease: 'power2.out',
   })
 
   gsap.from('.title', {
@@ -167,7 +245,7 @@ onMounted(() => {
     opacity: 0,
     duration: 0.8,
     delay: 0.5,
-    ease: 'back.out(1.7)'
+    ease: 'back.out(1.7)',
   })
 })
 
@@ -178,10 +256,18 @@ watch(results, async () => {
     opacity: 0,
     y: 50,
     stagger: 0.1,
-    ease: 'power3.out'
+    ease: 'power3.out',
   })
 })
 </script>
+
+<style scoped>
+button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transition: opacity 0.3s;
+}
+</style>
 
 <style scoped>
 .main-layout {
@@ -202,23 +288,6 @@ watch(results, async () => {
   font-size: 1.5rem;
   margin-bottom: 1rem;
   font-weight: bold;
-}
-
-.toggle-rarity {
-  display: block;
-  margin: 0 auto 1rem auto;
-  padding: 0.4rem 0.8rem;
-  font-size: 0.9rem;
-  font-weight: 600;
-  background-color: #e5e7eb;
-  border: none;
-  border-radius: 0.5rem;
-  cursor: pointer;
-  transition: background-color 0.3s;
-}
-
-.toggle-rarity:hover {
-  background-color: #d1d5db;
 }
 
 .rarity-tab ul {
@@ -245,7 +314,15 @@ watch(results, async () => {
 .title {
   font-size: 2.5rem;
   text-align: center;
-  margin-bottom: 1.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.coin-count {
+  text-align: center;
+  font-size: 1.2rem;
+  font-weight: bold;
+  margin-bottom: 1rem;
+  color: #374151;
 }
 
 .buttons {
@@ -262,12 +339,6 @@ button {
   cursor: pointer;
   font-size: 1rem;
   transition: background-color 0.3s;
-}
-
-button:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-  transition: opacity 0.3s;
 }
 
 .button-single {
@@ -361,7 +432,6 @@ button:disabled {
 .rarity-tab .border-legendary {
   background-color: #fef3c7;
 }
-
 
 .rarity-tab .border-korean {
   background-color: #ede9fe;

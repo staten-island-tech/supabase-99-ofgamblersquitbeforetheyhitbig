@@ -199,8 +199,8 @@ const addCoins = async (amount) => {
 async function rewardCoins() {
   const rewards = {
     easy: 10,
-    medium: 25,
-    hard: 50,
+    medium: 50,
+    hard: 100,
   }
   const reward = rewards[selectedDifficulty.value] || 0
 
