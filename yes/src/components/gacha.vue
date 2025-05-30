@@ -45,6 +45,10 @@
 <script setup>
 import { ref, watch, nextTick, onMounted } from 'vue'
 import { gsap } from 'gsap'
+import { useAuthStore } from '@/stores/auth'
+import { supabase } from '@/lib/supabase'
+
+const auth = useAuthStore()
 
 const results = ref([])
 const isCooldown = ref(false)
@@ -59,9 +63,9 @@ async function fetchCoins() {
   if (!user) return
 
   const { data, error } = await supabase
-    .from('profiles') // or your table name
+    .from('users') // or your table name
     .select('coins')
-    .eq('id', user.id) // adjust column name if different
+    .eq('id', auth.user.id) // adjust column name if different
     .single()
 
   if (error) {
@@ -81,7 +85,10 @@ async function updateCoinsInDB() {
   } = await supabase.auth.getUser()
   if (!user) return
 
-  const { error } = await supabase.from('profiles').update({ coins: coins.value }).eq('id', user.id)
+  const { error } = await supabase
+    .from('users')
+    .update({ coins: coins.value })
+    .eq('id', auth.user.id)
 
   if (error) {
     console.error('Error updating coins:', error)
@@ -170,15 +177,15 @@ function startCooldown() {
   }, COOLDOWN_MS)
 }
 
-function singlePull() {
+async function singlePull() {
   if (isCooldown.value || coins.value < 10) return
   coins.value -= 10
   const pull = pullOneCharacter()
   results.value = pull ? [pull] : []
+  await updateCoinsInDB() // ✅ Sync with Supabase
   startCooldown()
 }
-
-function tenPull() {
+async function tenPull() {
   if (isCooldown.value || coins.value < 100) return
   coins.value -= 100
   const pulls = []
@@ -187,6 +194,7 @@ function tenPull() {
     if (p) pulls.push(p)
   }
   results.value = pulls
+  await updateCoinsInDB() // ✅ Sync with Supabase
   startCooldown()
 }
 
