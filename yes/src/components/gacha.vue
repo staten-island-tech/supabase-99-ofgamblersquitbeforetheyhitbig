@@ -11,7 +11,7 @@
     </aside>
 
     <div class="container">
-      <h1 class="title">Dylans Special Goon</h1>
+      <h1 class="title">pullllllllll</h1>
       <p class="coin-count">Coins: {{ coins }}</p>
 
       <div class="buttons">
@@ -63,9 +63,9 @@ async function fetchCoins() {
   if (!user) return
 
   const { data, error } = await supabase
-    .from('users') // or your table name
+    .from('users') 
     .select('coins')
-    .eq('id', auth.user.id) // adjust column name if different
+    .eq('id', auth.user.id) 
     .single()
 
   if (error) {
@@ -182,7 +182,7 @@ async function singlePull() {
   coins.value -= 10
   const pull = pullOneCharacter()
   results.value = pull ? [pull] : []
-  await updateCoinsInDB() // ✅ Sync with Supabase
+  await updateCoinsInDB()
   startCooldown()
 }
 async function tenPull() {
@@ -194,7 +194,7 @@ async function tenPull() {
     if (p) pulls.push(p)
   }
   results.value = pulls
-  await updateCoinsInDB() // ✅ Sync with Supabase
+  await updateCoinsInDB() 
   startCooldown()
 }
 
@@ -208,8 +208,6 @@ function rarityClass(rarity) {
       return 'border-legendary'
     case 'Rare':
       return 'border-rare'
-    case 'Gooner':
-      return 'border-gooner'
     default:
       return 'border-common'
   }
@@ -221,12 +219,10 @@ function getStars(rarity) {
       return 6
     case 'Legendary':
       return 5
-    case 'Rare':
-      return 4
-    case 'Gooner':
-      return 3
     case 'Korean':
-      return 2
+      return 4
+    case 'Rare':
+      return 3
     default:
       return 1
   }
@@ -362,10 +358,14 @@ button {
 .results-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-  gap: 1rem;
+  gap: 1rem; 
 }
 
 .card {
+  display: flex;
+  flex-direction: column;
+  width: 10rem;
+  height: 20rem;
   background-color: white;
   padding: 1rem;
   border: 4px solid transparent;
@@ -413,10 +413,6 @@ button {
   border-color: #a855f7;
 }
 
-.border-gooner {
-  border-color: #ec4899;
-}
-
 .border-lebron {
   border-color: #ef4444;
 }
@@ -445,3 +441,5 @@ button {
   background-color: #fee2e2;
 }
 </style>
+
+
