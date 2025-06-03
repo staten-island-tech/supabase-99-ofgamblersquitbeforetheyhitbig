@@ -75,6 +75,26 @@ async function fetchCoins() {
   }
 }
 
+async function addToInventory(cards) {
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+  if (!user) return
+
+  const inventoryEntries = cards.map((card) => ({
+    user_id: user.id,
+    card_name: card.Name,
+    rarity: card.Rarity,
+    desc: card.Desc,
+    image: card.Image,
+  }))
+
+  const { error } = await supabase.from('inventory').insert(inventoryEntries)
+  if (error) {
+    console.error('Error adding to inventory:', error)
+  }
+}
+
 onMounted(() => {
   fetchCoins()
 })
@@ -183,6 +203,7 @@ async function singlePull() {
   const pull = pullOneCharacter()
   results.value = pull ? [pull] : []
   await updateCoinsInDB() // ✅ Sync with Supabase
+  if (pull) await addToInventory([pull])
   startCooldown()
 }
 async function tenPull() {
@@ -195,6 +216,7 @@ async function tenPull() {
   }
   results.value = pulls
   await updateCoinsInDB() // ✅ Sync with Supabase
+  if (pulls.length) await addToInventory(pulls)
   startCooldown()
 }
 
