@@ -1,14 +1,25 @@
 <template>
   <div class="main-layout">
-    <aside class="rarity-tab">
-      <h2 class="rarity-title">Rarity Rates</h2>
-      <ul>
-        <li v-for="(rate, rarity) in rarityRates" :key="rarity" :class="rarityClass(rarity)">
-          <span class="rarity-label">{{ rarity }}</span>
-          <span class="rarity-percent">{{ rate }}%</span>
-        </li>
-      </ul>
-    </aside>
+    <div class="rarity-toggle-col">
+      <!-- Toggle Button -->
+      <button class="rarity-toggle-btn" @click="toggleRarity">
+        <span v-if="showRarity">🙈 Hide</span>
+        <span v-else>👀 Show</span>
+        Rarity Rates
+      </button>
+      <!-- Rarity Tab, animated with GSAP -->
+      <transition name="rarity-fade">
+        <aside class="rarity-tab" v-show="showRarity">
+          <h2 class="rarity-title">Rarity Rates</h2>
+          <ul>
+            <li v-for="(rate, rarity) in rarityRates" :key="rarity" :class="rarityClass(rarity)">
+              <span class="rarity-label">{{ rarity }}</span>
+              <span class="rarity-percent">{{ rate }}%</span>
+            </li>
+          </ul>
+        </aside>
+      </transition>
+    </div>
 
     <div class="container">
       <h1 class="title">pullllllllll</h1>
@@ -23,7 +34,11 @@
         </button>
       </div>
 
-      <div v-if="results.length" class="results-grid">
+      <div
+        v-if="results.length"
+        class="results-grid"
+        :class="{ 'results-single': results.length === 1 }"
+      >
         <div
           v-for="(item, index) in results"
           :key="index"
@@ -55,6 +70,11 @@ const isCooldown = ref(false)
 const COOLDOWN_MS = 1500
 
 const coins = ref(0)
+const showRarity = ref(true)
+
+function toggleRarity() {
+  showRarity.value = !showRarity.value
+}
 
 async function fetchCoins() {
   const {
@@ -77,6 +97,43 @@ async function fetchCoins() {
 
 onMounted(() => {
   fetchCoins()
+  // Animate rarity tab in on mount if visible
+  if (showRarity.value) {
+    gsap.from('.rarity-tab', {
+      x: -50,
+      opacity: 0,
+      duration: 1,
+      ease: 'power2.out',
+    })
+  }
+  gsap.from('.title', {
+    scale: 0.8,
+    opacity: 0,
+    duration: 0.8,
+    delay: 0.5,
+    ease: 'back.out(1.7)',
+  })
+})
+
+// Animate rarity tab when toggled
+watch(showRarity, async (val) => {
+  await nextTick()
+  const tab = document.querySelector('.rarity-tab')
+  if (!tab) return
+  if (val) {
+    gsap.fromTo(
+      tab,
+      { x: -50, opacity: 0 },
+      { x: 0, opacity: 1, duration: 0.6, ease: 'power2.out', display: 'block' }
+    )
+  } else {
+    gsap.to(tab, {
+      x: -50,
+      opacity: 0,
+      duration: 0.4,
+      ease: 'power2.in',
+    })
+  }
 })
 
 async function updateCoinsInDB() {
@@ -218,32 +275,15 @@ function getStars(rarity) {
     case 'Lebron James':
       return 6
     case 'Legendary':
-      return 5
-    case 'Korean':
       return 4
+    case 'Korean':
+      return 5
     case 'Rare':
       return 3
     default:
       return 1
   }
 }
-
-onMounted(() => {
-  gsap.from('.rarity-tab', {
-    x: -50,
-    opacity: 0,
-    duration: 1,
-    ease: 'power2.out',
-  })
-
-  gsap.from('.title', {
-    scale: 0.8,
-    opacity: 0,
-    duration: 0.8,
-    delay: 0.5,
-    ease: 'back.out(1.7)',
-  })
-})
 
 watch(results, async () => {
   await nextTick()
@@ -258,25 +298,53 @@ watch(results, async () => {
 </script>
 
 <style scoped>
-button:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-  transition: opacity 0.3s;
-}
-</style>
-
-<style scoped>
 .main-layout {
   display: flex;
   gap: 2rem;
   padding: 2rem;
 }
 
+/* New column wrapper to keep toggle+rarity tab together vertically */
+.rarity-toggle-col {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  min-width: 220px;
+}
+
+/* Improved toggle button styling */
+.rarity-toggle-btn {
+  margin-bottom: 1rem;
+  padding: 0.7rem 1.2rem;
+  border-radius: 0.8rem;
+  background: linear-gradient(90deg, #6366f1 60%, #a5b4fc 100%);
+  color: #fff;
+  font-weight: bold;
+  font-size: 1.08rem;
+  cursor: pointer;
+  border: none;
+  box-shadow: 0 2px 8px rgba(99,102,241,0.07);
+  letter-spacing: 0.02em;
+  transition: 
+    background 0.18s,
+    transform 0.13s,
+    box-shadow 0.18s;
+  display: flex;
+  align-items: center;
+  gap: 0.5em;
+}
+.rarity-toggle-btn:hover, .rarity-toggle-btn:focus {
+  background: linear-gradient(90deg, #4f46e5 60%, #818cf8 100%);
+  transform: translateY(-2px) scale(1.045);
+  box-shadow: 0 4px 16px rgba(99,102,241,0.14);
+}
+
 .rarity-tab {
   background: #f3f4f6;
   border-radius: 1rem;
   padding: 1rem;
-  width: 220px;
+  width: 100%;
+  min-width: 220px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
@@ -289,6 +357,7 @@ button:disabled {
 .rarity-tab ul {
   list-style: none;
   padding: 0;
+  margin: 0;
 }
 
 .rarity-tab li {
@@ -299,6 +368,16 @@ button:disabled {
   border-radius: 8px;
   font-weight: 600;
   font-size: 0.95rem;
+}
+
+/* Transition for fade in/out */
+.rarity-fade-enter-active,
+.rarity-fade-leave-active {
+  transition: opacity 0.35s;
+}
+.rarity-fade-enter-from,
+.rarity-fade-leave-to {
+  opacity: 0;
 }
 
 .container {
@@ -359,6 +438,14 @@ button {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
   gap: 1rem; 
+}
+
+/* Center single card when only one pull result */
+.results-single {
+  display: flex !important;
+  justify-content: center;
+  align-items: flex-start;
+  gap: 1rem;
 }
 
 .card {
@@ -441,5 +528,3 @@ button {
   background-color: #fee2e2;
 }
 </style>
-
-
