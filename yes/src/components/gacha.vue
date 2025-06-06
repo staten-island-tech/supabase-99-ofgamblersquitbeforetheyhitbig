@@ -79,7 +79,7 @@ const auth = useAuthStore()
 
 const results = ref([])
 const isCooldown = ref(false)
-const COOLDOWN_MS = 1500
+const COOLDOWN_MS = 1000
 
 const coins = ref(0)
 const showRarity = ref(true)
