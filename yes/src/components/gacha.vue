@@ -12,11 +12,7 @@
         <aside class="rarity-tab" v-show="showRarity">
           <h2 class="rarity-title">Rarity Rates</h2>
           <ul>
-            <li
-              v-for="(rate, rarity) in rarityRates"
-              :key="rarity"
-              :class="rarityClass(rarity)"
-            >
+            <li v-for="(rate, rarity) in rarityRates" :key="rarity" :class="rarityClass(rarity)">
               <span class="rarity-label">{{ rarity }}</span>
               <span class="rarity-percent">{{ rate }}%</span>
             </li>
@@ -30,18 +26,10 @@
       <p class="coin-count">Coins: {{ coins }}</p>
 
       <div class="buttons">
-        <button
-          @click="singlePull"
-          :disabled="isCooldown || coins < 10"
-          class="button-single"
-        >
+        <button @click="singlePull" :disabled="isCooldown || coins < 10" class="button-single">
           Single Pull (10 coins)
         </button>
-        <button
-          @click="tenPull"
-          :disabled="isCooldown || coins < 100"
-          class="button-ten"
-        >
+        <button @click="tenPull" :disabled="isCooldown || coins < 100" class="button-ten">
           10 Pull (100 coins)
         </button>
       </div>
@@ -156,7 +144,7 @@ watch(showRarity, async (val) => {
     gsap.fromTo(
       tab,
       { x: -50, opacity: 0 },
-      { x: 0, opacity: 1, duration: 0.6, ease: 'power2.out', display: 'block' }
+      { x: 0, opacity: 1, duration: 0.6, ease: 'power2.out', display: 'block' },
     )
   } else {
     gsap.to(tab, {
@@ -365,9 +353,9 @@ button:disabled {
   font-size: 1.08rem;
   cursor: pointer;
   border: none;
-  box-shadow: 0 2px 8px rgba(99,102,241,0.07);
+  box-shadow: 0 2px 8px rgba(99, 102, 241, 0.07);
   letter-spacing: 0.02em;
-  transition: 
+  transition:
     background 0.18s,
     transform 0.13s,
     box-shadow 0.18s;
@@ -375,10 +363,11 @@ button:disabled {
   align-items: center;
   gap: 0.5em;
 }
-.rarity-toggle-btn:hover, .rarity-toggle-btn:focus {
+.rarity-toggle-btn:hover,
+.rarity-toggle-btn:focus {
   background: linear-gradient(90deg, #4f46e5 60%, #818cf8 100%);
   transform: translateY(-2px) scale(1.045);
-  box-shadow: 0 4px 16px rgba(99,102,241,0.14);
+  box-shadow: 0 4px 16px rgba(99, 102, 241, 0.14);
 }
 
 .rarity-tab {
