@@ -104,19 +104,28 @@ onMounted(async () => {
 
 <template>
   <div class="profile-container">
-    <h1>User Profile</h1>
-    <p><strong>Email:</strong> {{ profileData.email }}</p>
-    <p><strong>Username:</strong> {{ profileData.username }}</p>
-    <img
-      v-if="profileData.image"
-      :src="profileData.image"
-      alt="Profile image"
-      class="profile-img"
-    />
-    <button v-if="auth.user" @click="handleLogout" class="logout-btn">Logout</button>
+    <div class="profile-header">
+      <div class="profile-avatar-wrap">
+        <img
+          v-if="profileData.image"
+          :src="profileData.image"
+          alt="Profile image"
+          class="profile-img"
+        />
+        <div v-else class="profile-placeholder">
+          <span>{{ profileData.username ? profileData.username[0].toUpperCase() : '?' }}</span>
+        </div>
+      </div>
+      <div class="profile-info">
+        <h1 class="profile-title">User Profile</h1>
+        <p class="profile-username">@{{ profileData.username }}</p>
+        <p class="profile-email">{{ profileData.email }}</p>
+        <button v-if="auth.user" @click="handleLogout" class="logout-btn">Logout</button>
+      </div>
+    </div>
 
     <div class="inventory-container" v-if="inventory.length">
-      <h2>Your Cards</h2>
+      <h2 class="cards-heading">Your Cards</h2>
       <div class="card-grid">
         <div
           class="card-item"
@@ -132,19 +141,12 @@ onMounted(async () => {
             <div class="card-overlay" v-if="card.count > 1">x{{ card.count }}</div>
             <div class="card-meta">
               <div class="rarity-row">
-                <span
-                  class="rarity-border"
-                  :class="rarityClass(card.rarity)"
-                >
+                <span class="rarity-border" :class="rarityClass(card.rarity)">
                   {{ card.rarity }}
                 </span>
               </div>
               <span class="card-stars">
-                <span
-                  v-for="n in getStars(card.rarity)"
-                  :key="n"
-                  class="star"
-                >⭐</span>
+                <span v-for="n in getStars(card.rarity)" :key="n" class="star">⭐</span>
               </span>
             </div>
             <div class="card-name">{{ card.card_name }}</div>
@@ -172,8 +174,8 @@ onMounted(async () => {
   padding: 2rem;
   border-radius: 1rem;
   box-shadow: 0 0 12px rgba(0, 0, 0, 0.1);
-  text-align: center;
   background: #fff;
+  font-family: inherit;
 }
 @media (max-width: 900px) {
   .profile-container {
@@ -191,48 +193,168 @@ onMounted(async () => {
   }
 }
 
-h1 {
-  font-size: 2.1rem;
+/* --- Profile Header Section --- */
+.profile-header {
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+  margin-bottom: 2.5rem;
 }
 @media (max-width: 600px) {
-  h1 {
-    font-size: 1.3rem;
-  }
-  .profile-img {
-    width: 90px;
-    height: 90px;
+  .profile-header {
+    flex-direction: column;
+    gap: 0.8rem;
+    margin-bottom: 1.2rem;
   }
 }
 
+.profile-avatar-wrap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
 .profile-img {
-  width: 150px;
-  height: 150px;
+  width: 120px;
+  height: 120px;
   object-fit: cover;
   border-radius: 50%;
-  margin: 1rem 0;
-  box-shadow: 0 0 6px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 2px 16px #cbd5e1aa;
+  border: 3px solid #e0e7ef;
+  background: #f3f4f6;
+  transition: box-shadow 0.18s;
+}
+.profile-img:hover {
+  box-shadow: 0 6px 22px #2563eb33;
 }
 @media (max-width: 600px) {
   .profile-img {
-    width: 90px;
-    height: 90px;
-    margin: 0.5rem 0 1rem 0;
+    width: 80px;
+    height: 80px;
+    border-width: 2px;
+  }
+}
+/* Placeholder avatar when no image */
+.profile-placeholder {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #e0e7ef 60%, #f1f5f9 100%);
+  color: #64748b;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 3rem;
+  font-weight: 700;
+  border: 3px solid #e0e7ef;
+  box-shadow: 0 2px 16px #cbd5e1aa;
+}
+@media (max-width: 600px) {
+  .profile-placeholder {
+    width: 80px;
+    height: 80px;
+    font-size: 2rem;
+    border-width: 2px;
+  }
+}
+
+.profile-info {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 0.3rem;
+  flex: 1;
+}
+@media (max-width: 600px) {
+  .profile-info {
+    align-items: center;
+    width: 100%;
+  }
+}
+
+.profile-title {
+  font-size: 2rem;
+  font-weight: 700;
+  margin: 0 0 0.2em 0;
+  color: #2563eb;
+  letter-spacing: -1px;
+}
+@media (max-width: 600px) {
+  .profile-title {
+    font-size: 1.25rem;
+  }
+}
+
+.profile-username {
+  font-size: 1.13rem;
+  font-weight: 600;
+  color: #334155;
+  margin-bottom: 0.05em;
+  letter-spacing: 0.01em;
+  opacity: 0.88;
+}
+@media (max-width: 600px) {
+  .profile-username {
+    font-size: 1rem;
+  }
+}
+
+.profile-email {
+  font-size: 0.97rem;
+  color: #64748b;
+  font-weight: 400;
+  margin-bottom: 0.6em;
+  letter-spacing: 0.01em;
+  opacity: 0.77;
+  word-break: break-all;
+}
+@media (max-width: 600px) {
+  .profile-email {
+    font-size: 0.88rem;
+    margin-bottom: 0.5em;
   }
 }
 
 .logout-btn {
-  padding: 0.5rem 1rem;
-  background-color: #ff4d4f;
-  color: white;
+  padding: 0.52rem 1.2rem;
+  background: linear-gradient(90deg, #ef4444 0%, #f87171 100%);
+  color: #fff;
   border: none;
-  border-radius: 6px;
+  border-radius: 0.6rem;
   cursor: pointer;
-  transition: background-color 0.2s ease;
-  margin-bottom: 0.7rem;
+  font-size: 1rem;
+  font-weight: 600;
+  box-shadow: 0 2px 10px #ef444422;
+  transition:
+    background 0.2s,
+    box-shadow 0.18s;
+  margin-top: 0.6rem;
+  outline: none;
 }
-.logout-btn:hover {
-  background-color: #d9363e;
+.logout-btn:hover,
+.logout-btn:focus {
+  background: linear-gradient(90deg, #dc2626 0%, #f87171 100%);
+  box-shadow: 0 4px 16px #ef444455;
 }
+
+/* --- Cards section heading --- */
+.cards-heading {
+  text-align: left;
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: #334155;
+  margin-bottom: 0.8rem;
+  margin-top: 0.5rem;
+  letter-spacing: 0.01em;
+}
+@media (max-width: 600px) {
+  .cards-heading {
+    font-size: 1rem;
+    margin-bottom: 0.4rem;
+  }
+}
+
+/* --- Rest of the styles (cards, modal, etc.) are unchanged --- */
 
 /* Inventory Styles */
 .inventory-container {
@@ -277,7 +399,9 @@ h1 {
   position: relative;
   display: flex;
   align-items: stretch;
-  transition: transform 0.18s, box-shadow 0.18s;
+  transition:
+    transform 0.18s,
+    box-shadow 0.18s;
   cursor: pointer;
 }
 .card-item:hover {
@@ -339,10 +463,10 @@ h1 {
   position: absolute;
   bottom: 7px;
   right: 10px;
-  background: rgba(30,41,59,0.86);
+  background: rgba(30, 41, 59, 0.86);
   color: #fffbe6;
   border-radius: 999px;
-  padding: 0.10em 0.28em 0.18em 0.28em;
+  padding: 0.1em 0.28em 0.18em 0.28em;
   font-size: 1em;
   opacity: 0.82;
   pointer-events: none;
@@ -507,7 +631,9 @@ h1 {
   margin-top: 0.18rem;
   color: #334155;
   letter-spacing: 0.01em;
-  text-shadow: 0 1px 8px #fff, 0 1px 1px #e0e7ef;
+  text-shadow:
+    0 1px 8px #fff,
+    0 1px 1px #e0e7ef;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -525,10 +651,12 @@ h1 {
 }
 
 /* Modal for full photo */
-.fade-enter-active, .fade-leave-active {
+.fade-enter-active,
+.fade-leave-active {
   transition: opacity 0.2s;
 }
-.fade-enter-from, .fade-leave-to {
+.fade-enter-from,
+.fade-leave-to {
   opacity: 0;
 }
 .modal-backdrop {
