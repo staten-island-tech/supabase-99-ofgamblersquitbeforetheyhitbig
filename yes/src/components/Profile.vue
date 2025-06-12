@@ -1,6 +1,6 @@
 <script setup>
 import { useAuthStore } from '@/stores/auth'
-import { onMounted, ref } from 'vue'
+import { onMounted, ref, computed } from 'vue'
 import { supabase } from '@/lib/supabase'
 import { useRouter } from 'vue-router'
 
@@ -19,6 +19,12 @@ const profileData = ref({
 })
 
 const inventory = ref([])
+
+// Sorting options
+const sortOption = ref('rarity') // default: 'rarity', can be 'recent', 'most', 'least'
+
+// Rarity order from rarest to most common
+const rarityOrder = ['Lebron James', 'Legendary', 'Korean', 'Rare', 'Common']
 
 function rarityClass(rarity) {
   switch (rarity) {
@@ -49,6 +55,36 @@ function getStars(rarity) {
       return 1
   }
 }
+
+// Helper for sorting inventory array
+function sortInventory(inv, option) {
+  const arr = [...inv]
+  if (option === 'rarity') {
+    return arr.sort((a, b) => {
+      const rA = rarityOrder.indexOf(a.rarity)
+      const rB = rarityOrder.indexOf(b.rarity)
+      if (rA !== rB) return rA - rB
+      return a.card_name.localeCompare(b.card_name)
+    })
+  }
+  if (option === 'recent') {
+    // If created_at is missing, fallback to original order
+    return arr.sort((a, b) => {
+      if (a.created_at && b.created_at) return new Date(b.created_at) - new Date(a.created_at)
+      return 0
+    })
+  }
+  if (option === 'most') {
+    return arr.sort((a, b) => b.count - a.count)
+  }
+  if (option === 'least') {
+    return arr.sort((a, b) => a.count - b.count)
+  }
+  return arr
+}
+
+// Computed, always returns sorted version
+const sortedInventory = computed(() => sortInventory(inventory.value, sortOption.value))
 
 const focusedImage = ref(null)
 const showModal = ref(false)
@@ -98,6 +134,7 @@ onMounted(async () => {
     })
 
     inventory.value = Object.values(grouped)
+    // No sort here, sorting is handled in computed
   }
 })
 </script>
@@ -126,10 +163,19 @@ onMounted(async () => {
 
     <div class="inventory-container" v-if="inventory.length">
       <h2 class="cards-heading">Your Cards</h2>
+      <div class="sort-row">
+        <label for="sort-cards" class="sort-label">Sort by:</label>
+        <select id="sort-cards" v-model="sortOption" class="sort-select">
+          <option value="rarity">Rarity (Rarest → Common)</option>
+          <option value="recent">Recent (Newest First)</option>
+          <option value="most">Most to Least</option>
+          <option value="least">Least to Most</option>
+        </select>
+      </div>
       <div class="card-grid">
         <div
           class="card-item"
-          v-for="card in inventory"
+          v-for="card in sortedInventory"
           :key="card.card_name"
           :class="rarityClass(card.rarity)"
         >
@@ -193,7 +239,10 @@ onMounted(async () => {
 .rarity-border,
 .card-stars,
 .star,
-.card-name {
+.card-name,
+.sort-row,
+.sort-label,
+.sort-select {
   font-family: Arial, sans-serif !important;
   font-weight: bold !important;
 }
@@ -372,6 +421,47 @@ onMounted(async () => {
   .cards-heading {
     font-size: 1rem;
     margin-bottom: 0.4rem;
+  }
+}
+
+.sort-row {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1.1rem;
+}
+.sort-label {
+  font-size: 1.02rem;
+  color: #2563eb;
+}
+.sort-select {
+  font-size: 1rem;
+  padding: 0.14rem 0.6rem;
+  border-radius: 0.5rem;
+  border: 1.5px solid #d1d5db;
+  background: #f3f4f6;
+  color: #222;
+  outline: none;
+  font-weight: bold;
+  cursor: pointer;
+  box-shadow: 0 1px 2px 0 #2222;
+  transition: border 0.18s;
+}
+.sort-select:focus {
+  border-color: #2563eb;
+}
+@media (max-width: 600px) {
+  .sort-row {
+    gap: 0.5rem;
+    margin-bottom: 0.5rem;
+  }
+  .sort-label {
+    font-size: 0.88rem;
+  }
+  .sort-select {
+    font-size: 0.82rem;
+    border-radius: 0.3rem;
+    padding: 0.06rem 0.35rem;
   }
 }
 

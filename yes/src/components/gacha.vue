@@ -1,5 +1,5 @@
 <template>
-  <div style="position: relative; min-height: 100vh;">
+  <div style="position: relative; min-height: 100vh">
     <!-- Main UI: only show if overlay is NOT active -->
     <div v-if="!isDimmed" class="main-bg">
       <div class="main-layout">
@@ -48,20 +48,12 @@
       </div>
     </div>
     <!-- Overlay: takes up full viewport, only shows when pulling -->
-    <div
-      v-if="isDimmed"
-      class="results-overlay"
-      @click="hidePullOverlay"
-      tabindex="0"
-    >
+    <div v-if="isDimmed" class="results-overlay" @click="hidePullOverlay" tabindex="0">
       <div
         v-if="pullType === 'single' && overlayResults.length === 1"
         class="results-grid overlay-grid overlay-grid-single"
       >
-        <div
-          class="card overlay-card"
-          :class="rarityClass(overlayResults[0].Rarity)"
-        >
+        <div class="card overlay-card" :class="rarityClass(overlayResults[0].Rarity)">
           <img :src="overlayResults[0].Image" alt="Character" class="character-img" />
           <p class="character-name">{{ overlayResults[0].Name }}</p>
           <p class="rarity-stars">
@@ -70,10 +62,7 @@
           <p class="character-desc">{{ overlayResults[0].Desc }}</p>
         </div>
       </div>
-      <div
-        v-else
-        class="overlay-ten-grid"
-      >
+      <div v-else class="overlay-ten-grid">
         <div
           v-for="(item, index) in overlayResults"
           :key="index"
@@ -180,7 +169,7 @@ watch(showRarity, async (val) => {
     gsap.fromTo(
       tab,
       { x: -50, opacity: 0 },
-      { x: 0, opacity: 1, duration: 0.6, ease: 'power2.out', display: 'block' }
+      { x: 0, opacity: 1, duration: 0.6, ease: 'power2.out', display: 'block' },
     )
   } else {
     gsap.to(tab, {
@@ -217,7 +206,12 @@ const rarityRates = {
 }
 
 const gachaPool = [
-  { Name: 'Barney', Rarity: 'Rare', Desc: 'Barney is a dinosaur that haunts your imagination', Image: 'Barney.webp' },
+  {
+    Name: 'Barney',
+    Rarity: 'Rare',
+    Desc: 'Barney is a dinosaur that haunts your imagination',
+    Image: 'Barney.webp',
+  },
   { Name: 'Belle', Rarity: 'Korean', Desc: 'ryyan loves gooning', Image: 'Belle.jpg' },
   { Name: 'Bob', Rarity: 'Rare', Desc: 'licks you', Image: 'Bob.jpg' },
   { Name: 'Brude', Rarity: 'Common', Desc: 'mander', Image: 'Brude.jpg' },
@@ -240,8 +234,18 @@ const gachaPool = [
   { Name: 'Jungkook', Rarity: 'Korean', Desc: 'Standing next to you', Image: 'Jungkook.jpg' },
   { Name: 'Kanye', Rarity: 'Legendary', Desc: 'I love my cousin', Image: 'Kanye.jpg' },
   { Name: 'Keshi', Rarity: 'Common', Desc: 'Socal Asian moment', Image: 'Keshi.jpg' },
-  { Name: 'Kim Jong Un', Rarity: 'Korean', Desc: 'Top three Korea right here', Image: 'KimJongUn.jpg' },
-  { Name: 'LEBRON JAMES', Rarity: 'Lebron James', Desc: 'Dylan loves gooning', Image: 'Lebron.jpg' },
+  {
+    Name: 'Kim Jong Un',
+    Rarity: 'Korean',
+    Desc: 'Top three Korea right here',
+    Image: 'KimJongUn.jpg',
+  },
+  {
+    Name: 'LEBRON JAMES',
+    Rarity: 'Lebron James',
+    Desc: 'Dylan loves gooning',
+    Image: 'Lebron.jpg',
+  },
   { Name: 'Big Mac', Rarity: 'Common', Desc: 'Big back big back', Image: 'Mac.jpg' },
   { Name: 'McConner', Rarity: 'Common', Desc: 'Wsg gang', Image: 'McConner.jpg' },
   { Name: 'Minji', Rarity: 'Korean', Desc: 'Dylan loves gooning', Image: 'Minji.jpg' },
@@ -338,11 +342,7 @@ function getStars(rarity) {
 async function showPullOverlay() {
   isDimmed.value = true
   await nextTick()
-  gsap.fromTo(
-    '.results-overlay',
-    { opacity: 0 },
-    { opacity: 1, duration: 0.5, ease: 'power2.out' }
-  )
+  gsap.fromTo('.results-overlay', { opacity: 0 }, { opacity: 1, duration: 0.5, ease: 'power2.out' })
   if (overlayResults.value.length === 1) {
     gsap.from('.overlay-card', {
       duration: 0.7,
@@ -359,7 +359,7 @@ async function showPullOverlay() {
       stagger: {
         amount: 0.6,
         grid: [2, 5],
-        ease: "power3.out"
+        ease: 'power3.out',
       },
       delay: 0.1,
     })
@@ -417,17 +417,21 @@ button:disabled {
   font-size: 1.08rem;
   cursor: pointer;
   border: none;
-  box-shadow: 0 2px 8px rgba(99,102,241,0.07);
+  box-shadow: 0 2px 8px rgba(99, 102, 241, 0.07);
   letter-spacing: 0.02em;
-  transition: background 0.18s, transform 0.13s, box-shadow 0.18s;
+  transition:
+    background 0.18s,
+    transform 0.13s,
+    box-shadow 0.18s;
   display: flex;
   align-items: center;
   gap: 0.5em;
 }
-.rarity-toggle-btn:hover, .rarity-toggle-btn:focus {
+.rarity-toggle-btn:hover,
+.rarity-toggle-btn:focus {
   background: linear-gradient(90deg, #4f46e5 60%, #818cf8 100%);
   transform: translateY(-2px) scale(1.045);
-  box-shadow: 0 4px 16px rgba(99,102,241,0.14);
+  box-shadow: 0 4px 16px rgba(99, 102, 241, 0.14);
 }
 .rarity-tab {
   background: #f3f4f6;
@@ -597,8 +601,12 @@ button {
   cursor: pointer;
 }
 @keyframes fadein {
-  from { opacity: 0 }
-  to { opacity: 1 }
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 .overlay-grid.overlay-grid-single {
   display: flex !important;
@@ -619,7 +627,9 @@ button {
   box-sizing: border-box;
 }
 .overlay-card {
-  box-shadow: 0 0 32px 2px #fff4, 0 8px 32px rgba(0,0,0,0.29);
+  box-shadow:
+    0 0 32px 2px #fff4,
+    0 8px 32px rgba(0, 0, 0, 0.29);
   border-width: 5px;
   transform: scale(1.06);
   width: min(15vw, 220px);
@@ -642,5 +652,130 @@ button {
   outline: none;
 }
 
+@media (max-width: 900px) {
+  .main-layout {
+    flex-direction: column;
+    gap: 1.2rem;
+    padding: 1.2rem 0.4rem;
+  }
+  .rarity-toggle-col {
+    min-width: 0;
+    width: 100%;
+    max-width: 350px;
+    margin: 0 auto 1rem auto;
+  }
+  .container {
+    max-width: 100vw;
+    padding: 0 0.4rem;
+  }
+  .title {
+    font-size: 2rem;
+  }
+  .card,
+  .overlay-card {
+    width: 8.7rem;
+    height: 15rem;
+    padding: 0.6rem;
+    font-size: 0.95rem;
+  }
+  .overlay-card {
+    width: min(22vw, 150px);
+    height: min(28vh, 220px);
+  }
+  .character-img {
+    height: 95px;
+  }
+  .overlay-ten-grid {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    grid-template-rows: repeat(2, minmax(0, 1fr));
+    gap: 2vw 2vw;
+    padding: 4vh 2vw 1vh 2vw;
+  }
+}
 
+@media (max-width: 600px) {
+  .main-layout {
+    flex-direction: column;
+    gap: 0.7rem;
+    padding: 0.6rem 0.08rem;
+  }
+  .rarity-toggle-col {
+    min-width: 0;
+    width: 100%;
+    max-width: 100vw;
+    margin: 0 auto 0.3rem auto;
+  }
+  .rarity-toggle-btn {
+    font-size: 0.95rem;
+    padding: 0.5rem 0.6rem;
+  }
+  .rarity-tab {
+    font-size: 0.95rem;
+    padding: 0.7rem;
+    min-width: 0;
+  }
+  .rarity-title {
+    font-size: 1.15rem;
+  }
+  .container {
+    max-width: 100vw;
+    padding: 0 0.08rem;
+  }
+  .title {
+    font-size: 1.13rem;
+    margin-bottom: 0.15rem;
+  }
+  .coin-count {
+    font-size: 1rem;
+    margin-bottom: 0.3rem;
+  }
+  .buttons {
+    gap: 0.3rem;
+    margin-bottom: 1rem;
+  }
+  button,
+  .button-single,
+  .button-ten {
+    font-size: 0.92rem;
+    padding: 0.38rem 0.6rem;
+    border-radius: 0.38rem;
+  }
+  .card,
+  .overlay-card {
+    width: 5.5rem;
+    height: 8.8rem;
+    padding: 0.18rem;
+    font-size: 0.78rem;
+    border-radius: 0.5rem;
+  }
+  .overlay-card {
+    width: min(22vw, 90px);
+    height: min(22vw, 110px);
+  }
+  .character-img {
+    height: 35px;
+    border-radius: 0.3rem;
+    margin-bottom: 0.08rem;
+  }
+  .character-name {
+    font-size: 0.92rem;
+  }
+  .rarity-stars {
+    font-size: 0.9rem;
+    margin: 0.08rem 0;
+  }
+  .character-desc {
+    font-size: 0.74rem;
+  }
+  .overlay-ten-grid {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    grid-template-rows: repeat(2, minmax(0, 1fr));
+    gap: 1.5vw 1.5vw;
+    padding: 2vh 0.5vw 0.5vh 0.5vw;
+  }
+  .overlay-tip {
+    font-size: 0.95rem;
+    margin-top: 1.1rem;
+  }
+}
 </style>

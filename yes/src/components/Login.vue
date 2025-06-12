@@ -14,6 +14,8 @@ const ImageURL = ref('')
 const isLogin = ref(true)
 const identifier = ref('')
 
+const showWelcome = ref(true)
+
 const handleAuth = async () => {
   auth.error = null
 
@@ -75,8 +77,32 @@ const handleAuth = async () => {
 </script>
 
 <template>
-  <div class="auth-bg flex items-center justify-center min-h-screen">
-    <div class="auth-main-box bg-white p-8 rounded-2xl shadow-lg">
+  <div class="auth-bg flex items-center justify-center min-h-screen font-arial-bold relative">
+    <!-- Welcome Modal -->
+    <transition name="fade">
+      <div
+        v-if="showWelcome"
+        class="welcome-modal fixed inset-0 flex flex-col items-center justify-center z-50 bg-black bg-opacity-40"
+      >
+        <div
+          class="welcome-content bg-white p-8 rounded-2xl shadow-2xl flex flex-col items-center max-w-[90vw]"
+        >
+          <h2 class="welcome-title mb-3">
+            Welcome to <span style="color: #2563eb">minespin</span>!
+          </h2>
+          <p class="welcome-desc mb-6 text-center" style="max-width: 340px">
+            Minespin is a fun twist on classic Minesweeper.<br />
+            Please log in or sign up to get started!
+          </p>
+          <button class="welcome-close-btn styled-btn" @click="showWelcome = false">
+            Continue to Login
+          </button>
+        </div>
+      </div>
+    </transition>
+
+    <!-- Auth UI -->
+    <div class="auth-main-box bg-white p-8 rounded-2xl shadow-lg" :aria-hidden="showWelcome">
       <h1 class="auth-title mb-6">
         {{ isLogin ? 'Login' : 'Sign Up' }}
       </h1>
@@ -144,6 +170,12 @@ const handleAuth = async () => {
 </template>
 
 <style scoped>
+.font-arial-bold,
+.font-arial-bold * {
+  font-family: Arial, Helvetica, sans-serif !important;
+  font-weight: bold !important;
+}
+
 .auth-bg {
   background: #f3f4f6;
   min-height: 100vh;
@@ -160,6 +192,7 @@ const handleAuth = async () => {
   background: #fff;
   box-sizing: border-box;
   overflow: hidden;
+  transition: filter 0.25s;
 }
 
 .form-box {
@@ -176,9 +209,7 @@ const handleAuth = async () => {
 .auth-title {
   text-align: center;
   font-size: 1.875rem; /* text-3xl */
-  font-weight: 600; /* font-semibold */
   color: #1f2937; /* text-gray-800 */
-  font-family: inherit;
   letter-spacing: 0;
   margin-top: 0;
   margin-bottom: 1.5rem;
@@ -201,7 +232,6 @@ const handleAuth = async () => {
   margin-bottom: 0.5rem;
   box-sizing: border-box;
   overflow: hidden;
-  font-family: inherit;
 }
 
 .styled-input:focus {
@@ -215,7 +245,6 @@ const handleAuth = async () => {
   padding: 0.75rem;
   background: linear-gradient(90deg, #2563eb 0%, #1d4ed8 100%);
   color: #fff;
-  font-weight: 600;
   border: none;
   border-radius: 0.75rem;
   font-size: 1.1rem;
@@ -226,12 +255,132 @@ const handleAuth = async () => {
     box-shadow 0.2s;
   box-sizing: border-box;
   overflow: hidden;
-  font-family: inherit;
 }
 
 .styled-btn:hover,
 .styled-btn:focus {
   background: linear-gradient(90deg, #1e40af 0%, #2563eb 100%);
   box-shadow: 0 4px 16px rgba(37, 99, 235, 0.15);
+}
+
+.welcome-modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: fadein 0.25s;
+}
+@keyframes fadein {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+.welcome-content {
+  background: #fff;
+  border-radius: 1.2rem;
+  box-shadow: 0 4px 32px rgba(37, 99, 235, 0.13);
+  padding: 2.5rem 2rem 2rem 2rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 230px;
+}
+.welcome-title {
+  font-size: 2rem;
+  margin-bottom: 0.5rem;
+  text-align: center;
+}
+.welcome-desc {
+  font-size: 1.08rem;
+  margin-bottom: 1.6rem;
+  color: #374151;
+  text-align: center;
+}
+.welcome-close-btn {
+  width: 100%;
+  max-width: 200px;
+  margin: 0 auto;
+}
+
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.25s;
+}
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
+}
+
+@media (max-width: 900px) {
+  .auth-main-box {
+    width: 95vw;
+    padding: 1.5rem 0.5rem;
+    border-radius: 1rem;
+  }
+  .form-box {
+    padding: 1.2rem 0.6rem;
+    border-radius: 0.8rem;
+  }
+  .auth-title {
+    font-size: 1.4rem;
+    line-height: 1.8rem;
+    margin-bottom: 1rem;
+  }
+  .styled-input,
+  .styled-btn {
+    font-size: 0.98rem;
+    padding: 0.7rem 0.8rem;
+    border-radius: 0.6rem;
+  }
+  .welcome-content {
+    padding: 2rem 1.2rem;
+  }
+  .welcome-title {
+    font-size: 1.5rem;
+  }
+  .welcome-desc {
+    font-size: 0.98rem;
+  }
+}
+@media (max-width: 600px) {
+  .auth-main-box {
+    width: 99vw;
+    padding: 0.7rem 0.1rem;
+    border-radius: 0.7rem;
+    margin: 0.5rem auto;
+  }
+  .form-box {
+    padding: 0.6rem 0.1rem;
+    border-radius: 0.5rem;
+  }
+  .auth-title {
+    font-size: 1.12rem;
+    margin-bottom: 0.5rem;
+    line-height: 1.3rem;
+  }
+  .styled-input,
+  .styled-btn {
+    font-size: 0.82rem;
+    padding: 0.4rem 0.5rem;
+    border-radius: 0.4rem;
+  }
+  .welcome-content {
+    padding: 1.2rem 0.4rem;
+    min-width: 0;
+    max-width: 99vw;
+    border-radius: 0.7rem;
+  }
+  .welcome-title {
+    font-size: 1.1rem;
+  }
+  .welcome-desc {
+    font-size: 0.82rem;
+  }
 }
 </style>

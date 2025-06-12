@@ -75,6 +75,7 @@ function handleProtectedClick(e, to) {
   <div class="app-wrapper">
     <header>
       <img alt="Vue logo" class="logo" src="@/assets/Lebron.jpg" width="90" height="90" />
+      <div class="minspin-title">minespin</div>
       <button
         class="hamburger"
         @click="toggleMenu"
@@ -91,7 +92,7 @@ function handleProtectedClick(e, to) {
     <div v-if="menuOpen" ref="overlayBg" class="overlay-bg" @click="closeMenu"></div>
 
     <!-- Overlay Menu -->
-    <nav v-if="menuOpen" ref="overlayMenu" class="overlay-menu">
+    <nav v-if="menuOpen" ref="overlayMenu" class="overlay-menu aria-bold-menu">
       <button class="close-btn" @click="closeMenu" aria-label="Close menu">&times;</button>
       <!-- Login link with custom handler -->
       <RouterLink to="/" @click="handleLoginClick">Login</RouterLink>
@@ -115,8 +116,23 @@ header {
   padding: 1.5rem 0 0 0;
 }
 .logo {
-  margin: 0 auto 1.2rem auto;
+  margin: 0 auto 0.3rem auto;
   display: block;
+}
+.minspin-title {
+  font-family: Arial, Helvetica, sans-serif;
+  font-weight: bold;
+  font-size: 2rem;
+  letter-spacing: 0.03em;
+  text-align: center;
+  color: #2563eb;
+  margin-bottom: 1.2rem;
+}
+@media (max-width: 600px) {
+  .minspin-title {
+    font-size: 1.13rem;
+    margin-bottom: 0.5rem;
+  }
 }
 
 /* Hamburger Menu (triple lines) - top left corner */
@@ -193,6 +209,12 @@ header {
   transition:
     background 0.18s,
     color 0.18s;
+}
+/* BOLD ARIAL FOR OVERLAY MENU */
+.aria-bold-menu,
+.aria-bold-menu * {
+  font-family: Arial, Helvetica, sans-serif !important;
+  font-weight: bold !important;
 }
 .overlay-menu a.router-link-exact-active,
 .overlay-menu a:hover {
