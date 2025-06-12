@@ -1,5 +1,5 @@
 <template>
-  <div class="minesweeper p-4 space-y-4">
+  <div class="minesweeper p-4 space-y-4 relative">
     <div class="flex items-center justify-between">
       <h2 class="text-xl font-semibold">Minesweeper</h2>
       <select v-model="selectedDifficulty" @change="resetGame" class="border px-2 py-1 rounded">
@@ -41,13 +41,37 @@
       </div>
     </div>
 
-    <div v-if="gameOver || gameWon" class="mt-4 text-center">
-      <p v-if="gameOver" class="text-lg font-semibold text-red-600 mb-2">💥 Game Over!</p>
-      <p v-if="gameWon" class="text-lg font-semibold text-green-600 mb-2">🎉 You Won!</p>
-      <button @click="resetGame" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
-        Restart Game
-      </button>
-    </div>
+    <!-- Overlay for win or lose -->
+    <transition name="overlay-fade">
+      <div
+        v-if="gameOver || gameWon"
+        class="overlay absolute top-0 left-0 w-full h-full flex flex-col justify-center items-center z-20"
+      >
+        <div class="overlay-bg absolute inset-0"></div>
+        <div
+          class="overlay-content relative z-30 flex flex-col items-center p-8 rounded-2xl shadow-2xl backdrop-blur-lg"
+        >
+          <div
+            v-if="gameOver"
+            class="end-message game-over"
+          >
+            💥 Game Over!
+          </div>
+          <div
+            v-if="gameWon"
+            class="end-message game-won"
+          >
+            🎉 You Won!
+          </div>
+          <button
+            @click="resetGame"
+            class="mt-6 bg-gradient-to-r from-blue-500 via-blue-400 to-blue-600 text-white px-8 py-4 rounded-xl text-xl font-bold shadow-xl hover:scale-105 transition-transform"
+          >
+            Play Again
+          </button>
+        </div>
+      </div>
+    </transition>
   </div>
 </template>
 
@@ -283,5 +307,83 @@ onMounted(() => {
 
 .cell.revealed {
   box-shadow: inset 0 0 4px rgba(0, 0, 0, 0.2);
+}
+
+/* Overlay styles */
+.overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  min-height: 100%;
+  min-width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  pointer-events: all;
+}
+
+.overlay-bg {
+  position: absolute;
+  inset: 0;
+  background: rgba(24, 29, 41, 0.85);
+  z-index: 10;
+}
+
+.overlay-content {
+  z-index: 30;
+  padding: 3rem 4rem;
+  border-radius: 2rem;
+  background: rgba(44, 62, 80, 0.93);
+  box-shadow: 0 8px 32px rgba(0,0,0,0.35), 0 0 80px 5px rgba(0,160,255,0.10) inset;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  border: 2px solid rgba(255,255,255,0.1);
+  animation: overlay-pop 0.4s cubic-bezier(.16,1,.3,1) backwards;
+}
+
+@keyframes overlay-pop {
+  0% { transform: scale(0.85) translateY(40px); opacity: 0; }
+  100% { transform: scale(1) translateY(0); opacity: 1; }
+}
+
+/* Improved end message styles */
+.end-message {
+  font-family: 'Segoe UI', 'Montserrat', 'Arial', sans-serif;
+  font-size: 3rem;
+  font-weight: 900;
+  letter-spacing: 1px;
+  padding: 1rem 2.5rem;
+  margin-bottom: 1rem;
+  border-radius: 1rem;
+  text-align: center;
+  background: rgba(0,0,0,0.45);
+  box-shadow: 0 2px 16px 0 rgba(0,0,0,0.25), 0 0 10px 2px rgba(255,255,255,0.07) inset;
+  text-shadow: 0 3px 16px rgba(0,0,0,0.4), 0 1px 0 #fff;
+}
+
+.game-over {
+  background: linear-gradient(90deg,rgba(220,38,38,0.74),rgba(30,41,59,0.7));
+  color: #fff1f1;
+  text-shadow: 0 0 16px #ef4444, 0 0 32px #991b1b, 0 3px 16px rgba(0,0,0,0.5);
+}
+
+.game-won {
+  background: linear-gradient(90deg,rgba(251,191,36,0.85),rgba(34,197,94,0.7));
+  color: #fffbe8;
+  text-shadow: 0 0 12px #fde047, 0 0 28px #fbbf24, 0 3px 16px rgba(0,0,0,0.4);
+}
+
+.overlay-fade-enter-active,
+.overlay-fade-leave-active {
+  transition: opacity 0.3s;
+}
+.overlay-fade-enter-from,
+.overlay-fade-leave-to {
+  opacity: 0;
+}
+.overlay-fade-enter-to,
+.overlay-fade-leave-from {
+  opacity: 1;
 }
 </style>
