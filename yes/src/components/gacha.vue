@@ -1,4 +1,5 @@
 <template>
+<<<<<<< HEAD
   <div class="main-layout">
     <div class="rarity-toggle-col">
       <!-- Toggle Button -->
@@ -32,17 +33,87 @@
         <button @click="tenPull" :disabled="isCooldown || coins < 100" class="button-ten">
           10 Pull (100 coins)
         </button>
+=======
+  <div style="position: relative; min-height: 100vh;">
+    <!-- Main UI: only show if overlay is NOT active -->
+    <div v-if="!isDimmed" class="main-bg">
+      <div class="main-layout">
+        <div class="rarity-toggle-col">
+          <button class="rarity-toggle-btn" @click="toggleRarity">
+            <span v-if="showRarity">🙈 Hide</span>
+            <span v-else>👀 Show</span>
+            Rarity Rates
+          </button>
+          <transition name="rarity-fade">
+            <aside class="rarity-tab" v-show="showRarity">
+              <h2 class="rarity-title">Rarity Rates</h2>
+              <ul>
+                <li
+                  v-for="(rate, rarity) in rarityRates"
+                  :key="rarity"
+                  :class="rarityClass(rarity)"
+                >
+                  <span class="rarity-label">{{ rarity }}</span>
+                  <span class="rarity-percent">{{ rate }}%</span>
+                </li>
+              </ul>
+            </aside>
+          </transition>
+        </div>
+        <div class="container">
+          <h1 class="title">Dylans Special Goon</h1>
+          <p class="coin-count">Coins: {{ coins }}</p>
+          <div class="buttons">
+            <button
+              @click="startOverlayPull('single')"
+              :disabled="isCooldown || coins < 10"
+              class="button-single"
+            >
+              Single Pull (10 coins)
+            </button>
+            <button
+              @click="startOverlayPull('ten')"
+              :disabled="isCooldown || coins < 100"
+              class="button-ten"
+            >
+              10 Pull (100 coins)
+            </button>
+          </div>
+        </div>
+>>>>>>> main
       </div>
-
+    </div>
+    <!-- Overlay: takes up full viewport, only shows when pulling -->
+    <div
+      v-if="isDimmed"
+      class="results-overlay"
+      @click="hidePullOverlay"
+      tabindex="0"
+    >
       <div
-        v-if="results.length"
-        class="results-grid"
-        :class="{ 'results-single': results.length === 1 }"
+        v-if="pullType === 'single' && overlayResults.length === 1"
+        class="results-grid overlay-grid overlay-grid-single"
       >
         <div
-          v-for="(item, index) in results"
+          class="card overlay-card"
+          :class="rarityClass(overlayResults[0].Rarity)"
+        >
+          <img :src="overlayResults[0].Image" alt="Character" class="character-img" />
+          <p class="character-name">{{ overlayResults[0].Name }}</p>
+          <p class="rarity-stars">
+            <span v-for="n in getStars(overlayResults[0].Rarity)" :key="n">⭐</span>
+          </p>
+          <p class="character-desc">{{ overlayResults[0].Desc }}</p>
+        </div>
+      </div>
+      <div
+        v-else
+        class="overlay-ten-grid"
+      >
+        <div
+          v-for="(item, index) in overlayResults"
           :key="index"
-          class="card"
+          class="card overlay-card"
           :class="rarityClass(item.Rarity)"
         >
           <img :src="item.Image" alt="Character" class="character-img" />
@@ -53,6 +124,7 @@
           <p class="character-desc">{{ item.Desc }}</p>
         </div>
       </div>
+      <p class="overlay-tip">Click anywhere or press <kbd>ESC</kbd> to continue</p>
     </div>
   </div>
 </template>
@@ -65,12 +137,14 @@ import { supabase } from '@/lib/supabase'
 
 const auth = useAuthStore()
 
-const results = ref([])
+// Only for overlay, do NOT show pulls on main page
+const overlayResults = ref([])
 const isCooldown = ref(false)
 const COOLDOWN_MS = 1000
-
 const coins = ref(0)
 const showRarity = ref(true)
+const isDimmed = ref(false)
+const pullType = ref('single') // 'single' or 'ten'
 
 function toggleRarity() {
   showRarity.value = !showRarity.value
@@ -117,7 +191,6 @@ async function addToInventory(cards) {
 
 onMounted(() => {
   fetchCoins()
-  // Animate rarity tab in on mount if visible
   if (showRarity.value) {
     gsap.from('.rarity-tab', {
       x: -50,
@@ -135,7 +208,6 @@ onMounted(() => {
   })
 })
 
-// Animate rarity tab when toggled
 watch(showRarity, async (val) => {
   await nextTick()
   const tab = document.querySelector('.rarity-tab')
@@ -181,12 +253,7 @@ const rarityRates = {
 }
 
 const gachaPool = [
-  {
-    Name: 'Barney',
-    Rarity: 'Rare',
-    Desc: 'Barney is a dinosaur that haunts your imagination',
-    Image: 'Barney.webp',
-  },
+  { Name: 'Barney', Rarity: 'Rare', Desc: 'Barney is a dinosaur that haunts your imagination', Image: 'Barney.webp' },
   { Name: 'Belle', Rarity: 'Korean', Desc: 'ryyan loves gooning', Image: 'Belle.jpg' },
   { Name: 'Bob', Rarity: 'Rare', Desc: 'licks you', Image: 'Bob.jpg' },
   { Name: 'Brude', Rarity: 'Common', Desc: 'mander', Image: 'Brude.jpg' },
@@ -209,18 +276,8 @@ const gachaPool = [
   { Name: 'Jungkook', Rarity: 'Korean', Desc: 'Standing next to you', Image: 'Jungkook.jpg' },
   { Name: 'Kanye', Rarity: 'Legendary', Desc: 'I love my cousin', Image: 'Kanye.jpg' },
   { Name: 'Keshi', Rarity: 'Common', Desc: 'Socal Asian moment', Image: 'Keshi.jpg' },
-  {
-    Name: 'Kim Jong Un',
-    Rarity: 'Korean',
-    Desc: 'Top three Korea right here',
-    Image: 'KimJongUn.jpg',
-  },
-  {
-    Name: 'LEBRON JAMES',
-    Rarity: 'Lebron James',
-    Desc: 'Dylan loves gooning',
-    Image: 'Lebron.jpg',
-  },
+  { Name: 'Kim Jong Un', Rarity: 'Korean', Desc: 'Top three Korea right here', Image: 'KimJongUn.jpg' },
+  { Name: 'LEBRON JAMES', Rarity: 'Lebron James', Desc: 'Dylan loves gooning', Image: 'Lebron.jpg' },
   { Name: 'Big Mac', Rarity: 'Common', Desc: 'Big back big back', Image: 'Mac.jpg' },
   { Name: 'McConner', Rarity: 'Common', Desc: 'Wsg gang', Image: 'McConner.jpg' },
   { Name: 'Minji', Rarity: 'Korean', Desc: 'Dylan loves gooning', Image: 'Minji.jpg' },
@@ -254,26 +311,33 @@ function startCooldown() {
   }, COOLDOWN_MS)
 }
 
-async function singlePull() {
-  if (isCooldown.value || coins.value < 10) return
-  coins.value -= 10
-  const pull = pullOneCharacter()
-  results.value = pull ? [pull] : []
-  await updateCoinsInDB()
-  if (pull) await addToInventory([pull])
-  startCooldown()
-}
-async function tenPull() {
-  if (isCooldown.value || coins.value < 100) return
-  coins.value -= 100
-  const pulls = []
-  for (let i = 0; i < 10; i++) {
-    const p = pullOneCharacter()
-    if (p) pulls.push(p)
+// This is the only entrypoint to pull now
+async function startOverlayPull(type) {
+  if (isCooldown.value) return
+  if (type === 'single' && coins.value < 10) return
+  if (type === 'ten' && coins.value < 100) return
+
+  // Do not update any 'results' for main page, only overlayResults
+  pullType.value = type
+  overlayResults.value = []
+
+  if (type === 'single') {
+    coins.value -= 10
+    const pull = pullOneCharacter()
+    if (pull) overlayResults.value = [pull]
+    if (pull) await addToInventory([pull])
+  } else {
+    coins.value -= 100
+    const pulls = []
+    for (let i = 0; i < 10; i++) {
+      const p = pullOneCharacter()
+      if (p) pulls.push(p)
+    }
+    overlayResults.value = pulls
+    if (pulls.length) await addToInventory(pulls)
   }
-  results.value = pulls
   await updateCoinsInDB()
-  if (pulls.length) await addToInventory(pulls)
+  await showPullOverlay()
   startCooldown()
 }
 
@@ -307,14 +371,54 @@ function getStars(rarity) {
   }
 }
 
-watch(results, async () => {
+async function showPullOverlay() {
+  isDimmed.value = true
   await nextTick()
-  gsap.from('.card', {
-    duration: 0.6,
+  gsap.fromTo(
+    '.results-overlay',
+    { opacity: 0 },
+    { opacity: 1, duration: 0.5, ease: 'power2.out' }
+  )
+  if (overlayResults.value.length === 1) {
+    gsap.from('.overlay-card', {
+      duration: 0.7,
+      opacity: 0,
+      y: 70,
+      ease: 'power3.out',
+      delay: 0.1,
+    })
+  } else {
+    gsap.from('.overlay-card', {
+      duration: 0.7,
+      opacity: 0,
+      y: 70,
+      stagger: {
+        amount: 0.6,
+        grid: [2, 5],
+        ease: "power3.out"
+      },
+      delay: 0.1,
+    })
+  }
+}
+
+function hidePullOverlay() {
+  gsap.to('.results-overlay', {
     opacity: 0,
-    y: 50,
-    stagger: 0.1,
-    ease: 'power3.out',
+    duration: 0.4,
+    ease: 'power2.in',
+    onComplete: () => {
+      isDimmed.value = false
+      overlayResults.value = []
+    },
+  })
+}
+
+onMounted(() => {
+  window.addEventListener('keydown', (e) => {
+    if (isDimmed.value && (e.key === 'Escape' || e.key === ' ')) {
+      hidePullOverlay()
+    }
   })
 })
 </script>
@@ -325,24 +429,20 @@ button:disabled {
   cursor: not-allowed;
   transition: opacity 0.3s;
 }
-</style>
-
-<style scoped>
+.main-bg {
+  min-height: 100vh;
+}
 .main-layout {
   display: flex;
   gap: 2rem;
   padding: 2rem;
 }
-
-/* New column wrapper to keep toggle+rarity tab together vertically */
 .rarity-toggle-col {
   display: flex;
   flex-direction: column;
   align-items: stretch;
   min-width: 220px;
 }
-
-/* Improved toggle button styling */
 .rarity-toggle-btn {
   margin-bottom: 1rem;
   padding: 0.7rem 1.2rem;
@@ -355,10 +455,14 @@ button:disabled {
   border: none;
   box-shadow: 0 2px 8px rgba(99, 102, 241, 0.07);
   letter-spacing: 0.02em;
+<<<<<<< HEAD
   transition:
     background 0.18s,
     transform 0.13s,
     box-shadow 0.18s;
+=======
+  transition: background 0.18s, transform 0.13s, box-shadow 0.18s;
+>>>>>>> main
   display: flex;
   align-items: center;
   gap: 0.5em;
@@ -369,7 +473,6 @@ button:disabled {
   transform: translateY(-2px) scale(1.045);
   box-shadow: 0 4px 16px rgba(99, 102, 241, 0.14);
 }
-
 .rarity-tab {
   background: #f3f4f6;
   border-radius: 1rem;
@@ -378,19 +481,16 @@ button:disabled {
   min-width: 220px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
-
 .rarity-title {
   font-size: 1.5rem;
   margin-bottom: 1rem;
   font-weight: bold;
 }
-
 .rarity-tab ul {
   list-style: none;
   padding: 0;
   margin: 0;
 }
-
 .rarity-tab li {
   display: flex;
   justify-content: space-between;
@@ -400,8 +500,6 @@ button:disabled {
   font-weight: 600;
   font-size: 0.95rem;
 }
-
-/* Transition for fade in/out */
 .rarity-fade-enter-active,
 .rarity-fade-leave-active {
   transition: opacity 0.35s;
@@ -410,19 +508,16 @@ button:disabled {
 .rarity-fade-leave-to {
   opacity: 0;
 }
-
 .container {
   flex-grow: 1;
   max-width: 1000px;
   margin: 0 auto;
 }
-
 .title {
   font-size: 2.5rem;
   text-align: center;
   margin-bottom: 0.5rem;
 }
-
 .coin-count {
   text-align: center;
   font-size: 1.2rem;
@@ -430,14 +525,12 @@ button:disabled {
   margin-bottom: 1rem;
   color: #374151;
 }
-
 .buttons {
   display: flex;
   justify-content: center;
   gap: 1rem;
   margin-bottom: 2rem;
 }
-
 button {
   padding: 0.6rem 1.2rem;
   border-radius: 0.6rem;
@@ -446,39 +539,31 @@ button {
   font-size: 1rem;
   transition: background-color 0.3s;
 }
-
 .button-single {
   background-color: #3b82f6;
   color: white;
 }
-
 .button-ten {
   background-color: #10b981;
   color: white;
 }
-
 .button-single:hover {
   background-color: #2563eb;
 }
-
 .button-ten:hover {
   background-color: #059669;
 }
-
 .results-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
   gap: 1rem;
 }
-
-/* Center single card when only one pull result */
 .results-single {
   display: flex !important;
   justify-content: center;
   align-items: flex-start;
   gap: 1rem;
 }
-
 .card {
   display: flex;
   flex-direction: column;
@@ -491,7 +576,6 @@ button {
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
   text-align: center;
 }
-
 .character-img {
   width: 100%;
   height: 180px;
@@ -499,63 +583,112 @@ button {
   border-radius: 0.75rem;
   margin-bottom: 0.5rem;
 }
-
 .character-name {
   font-weight: bold;
   font-size: 1.2rem;
 }
-
 .rarity-stars {
   color: gold;
   margin: 0.3rem 0;
 }
-
 .character-desc {
   font-size: 0.9rem;
   color: #4b5563;
 }
-
 .border-common {
   border-color: #d1d5db;
 }
-
 .border-rare {
   border-color: #3b82f6;
 }
-
 .border-legendary {
   border-color: #f59e0b;
 }
-
 .border-korean {
   border-color: #a855f7;
 }
-
 .border-lebron {
   border-color: #ef4444;
 }
-
 .rarity-tab .border-common {
   background-color: #f9fafb;
 }
-
 .rarity-tab .border-rare {
   background-color: #dbeafe;
 }
-
 .rarity-tab .border-legendary {
   background-color: #fef3c7;
 }
-
 .rarity-tab .border-korean {
   background-color: #ede9fe;
 }
-
 .rarity-tab .border-gooner {
   background-color: #fce7f3;
 }
-
 .rarity-tab .border-lebron {
   background-color: #fee2e2;
 }
+<<<<<<< HEAD
 </style>
+=======
+.results-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  background: rgba(30, 41, 59, 0.95);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  animation: fadein 0.5s;
+  cursor: pointer;
+}
+@keyframes fadein {
+  from { opacity: 0 }
+  to { opacity: 1 }
+}
+.overlay-grid.overlay-grid-single {
+  display: flex !important;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+}
+.overlay-ten-grid {
+  width: 100vw;
+  height: 100vh;
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  grid-template-rows: repeat(2, minmax(0, 1fr));
+  gap: 2.5vw 2.5vw;
+  align-items: center;
+  justify-items: center;
+  padding: 5vh 5vw 2vh 5vw;
+  box-sizing: border-box;
+}
+.overlay-card {
+  box-shadow: 0 0 32px 2px #fff4, 0 8px 32px rgba(0,0,0,0.29);
+  border-width: 5px;
+  transform: scale(1.06);
+  width: min(15vw, 220px);
+  height: min(33vh, 350px);
+  background: white;
+  border-radius: 1rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.overlay-tip {
+  margin-top: 2rem;
+  color: #fff;
+  font-size: 1.1rem;
+  text-shadow: 0 1px 6px #000a;
+  font-weight: bold;
+  z-index: 2;
+}
+.results-overlay:focus {
+  outline: none;
+}
+
+
+</style>
+>>>>>>> main
