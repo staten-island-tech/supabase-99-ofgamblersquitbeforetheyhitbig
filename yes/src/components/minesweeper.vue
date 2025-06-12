@@ -391,10 +391,10 @@ if (typeof window !== 'undefined') {
   transform: scale(1.07);
 }
 .bg-white {
-  background-color: #f9fafb !important;
+  background-color: #f9fafb ;
 }
 .bg-red-400 {
-  background-color: #f87171 !important;
+  background-color: #f87171 ;
   color: white;
 }
 .text-blue-700 { color: #1d4ed8; }
@@ -494,4 +494,47 @@ if (typeof window !== 'undefined') {
 .overlay-fade-leave-from {
   opacity: 1;
 }
+@media (max-width: 600px) {
+  .minesweeper {
+    padding: 0.3rem ;
+  }
+  .grid {
+    gap: 2px ;
+    margin-top: 0.4rem ;
+  }
+  .cell {
+    width: 36px ;
+    height: 36px ;
+    font-size: 0.82rem ;
+    border-radius: 5px ;
+  }
+  .cell span {
+    font-size: 1.0rem ;
+  }
+  .cell-dropdown {
+    min-width: 80px ;
+    padding: 4px 2px 2px 2px ;
+    border-radius: 5px ;
+  }
+  .dropdown-btn {
+    font-size: 0.88rem ;
+    min-height: 26px ;
+    padding: 0.1rem 0.2rem ;
+  }
+  .overlay-content {
+    padding: 0.8rem 0.5rem ;
+    border-radius: 0.8rem ;
+  }
+  .end-message {
+    font-size: 1.2rem ;
+    padding: 0.2rem 0.5rem ;
+    margin-bottom: 0.5rem ;
+    border-radius: 0.5rem ;
+  }
+  .won-coins {
+    font-size: 1.3rem ;
+    margin-top: 1rem ;
+  }
+}
+
 </style>
