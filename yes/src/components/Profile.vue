@@ -168,6 +168,8 @@ onMounted(async () => {
 </template>
 
 <style scoped>
+
+
 .profile-container {
   max-width: 50vw;
   margin: 4rem auto;
