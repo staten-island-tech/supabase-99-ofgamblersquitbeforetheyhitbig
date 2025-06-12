@@ -67,7 +67,7 @@ function toggleMenu() {
     <button class="close-btn" @click="closeMenu" aria-label="Close menu">&times;</button>
     <RouterLink to="/" @click="closeMenu">Login</RouterLink>
     <RouterLink to="/about" @click="closeMenu">Profile</RouterLink>
-    <RouterLink to="/minesweeper" @click="closeMenu">Minesweeper</RouterLink>
+    <RouterLink to="/minesweeper" @click="closeMenu">Get Coins</RouterLink>
     <RouterLink to="/gacha" @click="closeMenu">Gacha</RouterLink>
   </nav>
 
