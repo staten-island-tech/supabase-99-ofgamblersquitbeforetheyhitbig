@@ -168,7 +168,35 @@ onMounted(async () => {
 </template>
 
 <style scoped>
-
+/* Make all font bolded Arial */
+.profile-container,
+.profile-header,
+.profile-avatar-wrap,
+.profile-img,
+.profile-placeholder,
+.profile-info,
+.profile-title,
+.profile-username,
+.profile-email,
+.logout-btn,
+.cards-heading,
+.inventory-container,
+.card-grid,
+.card-item,
+.card-content,
+.card-img-wrapper,
+.card-img,
+.view-full-photo,
+.card-overlay,
+.card-meta,
+.rarity-row,
+.rarity-border,
+.card-stars,
+.star,
+.card-name {
+  font-family: Arial, sans-serif !important;
+  font-weight: bold !important;
+}
 
 .profile-container {
   max-width: 50vw;
@@ -177,7 +205,6 @@ onMounted(async () => {
   border-radius: 1rem;
   box-shadow: 0 0 12px rgba(0, 0, 0, 0.1);
   background: #fff;
-  font-family: inherit;
 }
 @media (max-width: 900px) {
   .profile-container {
@@ -195,7 +222,6 @@ onMounted(async () => {
   }
 }
 
-/* --- Profile Header Section --- */
 .profile-header {
   display: flex;
   align-items: center;
@@ -235,7 +261,6 @@ onMounted(async () => {
     border-width: 2px;
   }
 }
-/* Placeholder avatar when no image */
 .profile-placeholder {
   width: 120px;
   height: 120px;
@@ -276,7 +301,6 @@ onMounted(async () => {
 
 .profile-title {
   font-size: 2rem;
-  font-weight: 700;
   margin: 0 0 0.2em 0;
   color: #2563eb;
   letter-spacing: -1px;
@@ -289,7 +313,6 @@ onMounted(async () => {
 
 .profile-username {
   font-size: 1.13rem;
-  font-weight: 600;
   color: #334155;
   margin-bottom: 0.05em;
   letter-spacing: 0.01em;
@@ -304,7 +327,6 @@ onMounted(async () => {
 .profile-email {
   font-size: 0.97rem;
   color: #64748b;
-  font-weight: 400;
   margin-bottom: 0.6em;
   letter-spacing: 0.01em;
   opacity: 0.77;
@@ -325,7 +347,6 @@ onMounted(async () => {
   border-radius: 0.6rem;
   cursor: pointer;
   font-size: 1rem;
-  font-weight: 600;
   box-shadow: 0 2px 10px #ef444422;
   transition:
     background 0.2s,
@@ -339,11 +360,9 @@ onMounted(async () => {
   box-shadow: 0 4px 16px #ef444455;
 }
 
-/* --- Cards section heading --- */
 .cards-heading {
   text-align: left;
   font-size: 1.2rem;
-  font-weight: 700;
   color: #334155;
   margin-bottom: 0.8rem;
   margin-top: 0.5rem;
@@ -500,7 +519,6 @@ onMounted(async () => {
   padding: 2px 6px;
   border-radius: 12px;
   z-index: 2;
-  font-weight: bold;
 }
 @media (max-width: 900px) {
   .card-overlay {
@@ -519,7 +537,6 @@ onMounted(async () => {
   }
 }
 
-/* Card meta row */
 .card-meta {
   width: 100%;
   display: flex;
@@ -542,7 +559,6 @@ onMounted(async () => {
   }
 }
 
-/* Rarity above stars */
 .rarity-row {
   width: 100%;
   display: flex;
@@ -553,7 +569,6 @@ onMounted(async () => {
   border-radius: 6px;
   padding: 1.5px 6px;
   font-size: 0.88rem;
-  font-weight: bold;
   margin-right: 0.2em;
   background: #f3f4f6;
   border: 2px solid #e5e7eb;
@@ -601,7 +616,6 @@ onMounted(async () => {
   background: #fee2e2 !important;
 }
 
-/* Stars */
 .card-stars {
   margin-left: 0rem;
   white-space: nowrap;
@@ -629,7 +643,6 @@ onMounted(async () => {
   width: 100%;
   text-align: center;
   font-size: 1.01rem;
-  font-weight: 700;
   margin-top: 0.18rem;
   color: #334155;
   letter-spacing: 0.01em;
@@ -652,7 +665,6 @@ onMounted(async () => {
   }
 }
 
-/* Modal for full photo */
 .fade-enter-active,
 .fade-leave-active {
   transition: opacity 0.2s;

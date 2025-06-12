@@ -1,11 +1,14 @@
 <script setup>
 import { ref, nextTick } from 'vue'
-import { RouterLink, RouterView } from 'vue-router'
+import { RouterLink, RouterView, useRouter } from 'vue-router'
 import { gsap } from 'gsap'
+import { useAuthStore } from '@/stores/auth'
 
 const menuOpen = ref(false)
 const overlayMenu = ref(null)
 const overlayBg = ref(null)
+const auth = useAuthStore()
+const router = useRouter()
 
 function openMenu() {
   menuOpen.value = true
@@ -13,12 +16,12 @@ function openMenu() {
     gsap.fromTo(
       overlayBg.value,
       { opacity: 0 },
-      { opacity: 0.6, duration: 0.3, ease: 'power2.out' }
+      { opacity: 0.6, duration: 0.3, ease: 'power2.out' },
     )
     gsap.fromTo(
       overlayMenu.value,
       { x: -250, opacity: 0 },
-      { x: 0, opacity: 1, duration: 0.35, ease: 'power3.out' }
+      { x: 0, opacity: 1, duration: 0.35, ease: 'power3.out' },
     )
   })
 }
@@ -28,12 +31,12 @@ function closeMenu() {
     opacity: 0,
     duration: 0.25,
     ease: 'power3.in',
-    onComplete: () => (menuOpen.value = false)
+    onComplete: () => (menuOpen.value = false),
   })
   gsap.to(overlayBg.value, {
     opacity: 0,
     duration: 0.2,
-    ease: 'power2.in'
+    ease: 'power2.in',
   })
 }
 function toggleMenu() {
@@ -43,37 +46,68 @@ function toggleMenu() {
     openMenu()
   }
 }
+
+// Handler for Login navigation
+function handleLoginClick(e) {
+  if (auth.user) {
+    e.preventDefault()
+    alert('You must log out before logging in again.')
+    closeMenu()
+  } else {
+    closeMenu()
+  }
+}
+
+// Handler for protected routes
+function handleProtectedClick(e, to) {
+  if (!auth.user) {
+    e.preventDefault()
+    alert('You must log in before accessing this page.')
+    closeMenu()
+  } else {
+    closeMenu()
+    // Optionally, you could use router.push(to) here for manual navigation
+  }
+}
 </script>
 
 <template>
-  <header>
-    <img alt="Vue logo" class="logo" src="@/assets/Lebron.jpg" width="90" height="90" />
-    <!-- Hamburger always visible, top left -->
-    <button class="hamburger" @click="toggleMenu" :aria-expanded="menuOpen" aria-label="Open navigation">
-      <span :class="{ open: menuOpen }"></span>
-      <span :class="{ open: menuOpen }"></span>
-      <span :class="{ open: menuOpen }"></span>
-    </button>
-  </header>
+  <div class="app-wrapper">
+    <header>
+      <img alt="Vue logo" class="logo" src="@/assets/Lebron.jpg" width="90" height="90" />
+      <button
+        class="hamburger"
+        @click="toggleMenu"
+        :aria-expanded="menuOpen"
+        aria-label="Open navigation"
+      >
+        <span :class="{ open: menuOpen }"></span>
+        <span :class="{ open: menuOpen }"></span>
+        <span :class="{ open: menuOpen }"></span>
+      </button>
+    </header>
 
-  <!-- Overlay (full screen dark bg) -->
-  <div v-if="menuOpen" ref="overlayBg" class="overlay-bg" @click="closeMenu"></div>
-  <!-- Overlay menu (slides in from left) -->
-  <nav
-    v-if="menuOpen"
-    ref="overlayMenu"
-    class="overlay-menu"
-  >
-    <button class="close-btn" @click="closeMenu" aria-label="Close menu">&times;</button>
-    <RouterLink to="/" @click="closeMenu">Login</RouterLink>
-    <RouterLink to="/about" @click="closeMenu">Profile</RouterLink>
-    <RouterLink to="/minesweeper" @click="closeMenu">Get Coins</RouterLink>
-    <RouterLink to="/gacha" @click="closeMenu">Gacha</RouterLink>
-  </nav>
+    <!-- Overlay Background -->
+    <div v-if="menuOpen" ref="overlayBg" class="overlay-bg" @click="closeMenu"></div>
 
-  <RouterView />
+    <!-- Overlay Menu -->
+    <nav v-if="menuOpen" ref="overlayMenu" class="overlay-menu">
+      <button class="close-btn" @click="closeMenu" aria-label="Close menu">&times;</button>
+      <!-- Login link with custom handler -->
+      <RouterLink to="/" @click="handleLoginClick">Login</RouterLink>
+      <RouterLink to="/about" @click="(e) => handleProtectedClick(e, '/about')">Profile</RouterLink>
+      <RouterLink to="/minesweeper" @click="(e) => handleProtectedClick(e, '/minesweeper')"
+        >Get Coins</RouterLink
+      >
+      <RouterLink to="/gacha" @click="(e) => handleProtectedClick(e, '/gacha')">Gacha</RouterLink>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="main-view">
+      <RouterView />
+    </main>
+  </div>
 </template>
-
 <style scoped>
 header {
   position: relative;
@@ -108,7 +142,7 @@ header {
   background: #222;
   margin: 5px 0;
   border-radius: 2px;
-  transition: all 0.3s cubic-bezier(.4,2,.6,1);
+  transition: all 0.3s cubic-bezier(0.4, 2, 0.6, 1);
 }
 .hamburger span.open:nth-child(1) {
   transform: translateY(9px) rotate(45deg);
@@ -156,7 +190,9 @@ header {
   text-decoration: none;
   padding: 0.5em 0;
   border-radius: 6px;
-  transition: background 0.18s, color 0.18s;
+  transition:
+    background 0.18s,
+    color 0.18s;
 }
 .overlay-menu a.router-link-exact-active,
 .overlay-menu a:hover {
