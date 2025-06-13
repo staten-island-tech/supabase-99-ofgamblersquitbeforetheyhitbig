@@ -3,9 +3,9 @@
     <div class="flex items-center justify-between mb-4">
       <h2 class="text-2xl font-semibold">Minesweeper</h2>
       <select v-model="selectedDifficulty" @change="resetGame" class="border px-4 py-2 rounded text-lg">
-        <option value="easy">Easy (8x8, 10 mines)</option>
-        <option value="medium">Medium (10x10, 15 mines)</option>
-        <option value="hard">Hard (14x14, 25 mines)</option>
+        <option value="easy">Easy (8x8, 10 mines) — {{ rewards.easy }} coins</option>
+        <option value="medium">Medium (10x10, 15 mines) — {{ rewards.medium }} coins</option>
+        <option value="hard">Hard (14x14, 25 mines) — {{ rewards.hard }} coins</option>
       </select>
     </div>
     <div class="text-center">
@@ -53,7 +53,9 @@
           class="cell-dropdown z-50"
           :style="{
             top: dropdown.position.top + 'px',
-            left: dropdown.position.left + 'px'
+            left: dropdown.position.left + 'px',
+            minWidth: '170px',
+            padding: '14px 10px 7px 10px',
           }"
           @click.stop
         >
@@ -148,6 +150,9 @@ const rows = computed(() => difficulties[selectedDifficulty.value].rows)
 const cols = computed(() => difficulties[selectedDifficulty.value].cols)
 const mineCount = computed(() => difficulties[selectedDifficulty.value].mines)
 
+// Make rewards available in template
+// (already defined above, so no changes needed in <script setup>)
+
 function resetGame() {
   grid.length = 0
   gameOver.value = false
@@ -195,15 +200,15 @@ function openDropdown(cell, event) {
       const cellRect = cellNode.getBoundingClientRect()
       // Position below and centered horizontally by default
       let top = cellRect.top - gridRect.top + cellRect.height + 2
-      let left = cellRect.left - gridRect.left + cellRect.width / 2 - 70
+      let left = cellRect.left - gridRect.left + cellRect.width / 2 - 85
       // Adjust if dropdown would overflow grid
-      const dropdownWidth = 150
+      const dropdownWidth = 170
       if (left + dropdownWidth > gridRect.width) {
         left = gridRect.width - dropdownWidth - 8
       }
       if (left < 0) left = 8
       // If too far down, show above the cell
-      const dropdownHeight = 120
+      const dropdownHeight = 130
       if (top + dropdownHeight > gridRect.height) {
         top = cellRect.top - gridRect.top - dropdownHeight - 2
       }
@@ -405,10 +410,10 @@ if (typeof window !== 'undefined') {
 /* Dropdown styles */
 .cell-dropdown {
   position: absolute;
-  min-width: 150px;
+  min-width: 170px;
   background: #fff;
-  border-radius: 12px;
-  padding: 10px 8px 4px 8px;
+  border-radius: 14px;
+  padding: 14px 10px 7px 10px;
   box-shadow: 0 8px 30px rgba(0,0,0,0.18), 0 2px 8px rgba(0,0,0,0.08);
   display: flex;
   flex-direction: column;
